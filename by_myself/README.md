@@ -7,12 +7,7 @@ Framework Components:
     
     2- Model Architecture (mobilenet.py, mobilenet_v2.py)
 
-    3- Training/ Testing configuration
-     
-        3.1 Loss function?
-        3.2 Optimizer?
-        3.3 Learning rate scheduler?
-
+    3- Training/ Testing configuration 
 
     4- Training loop 
 

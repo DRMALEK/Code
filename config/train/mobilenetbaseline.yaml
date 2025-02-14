@@ -1,0 +1,53 @@
+
+experiment:
+  name: "MobileNetBaseline" # Name of the experiment
+  model_save_path: "./model" # Path to save the trained model
+  experiment_number: 0 # Experiment number, should be changed for each new experiment
+
+data:
+  name: "Meccano" # Name of the dataset
+  util_location: "framework_activity_recognition.datautils.prepare_drivenact" # Location of the data utility script
+  sampler:
+    use: false # Whether to use a sampler (TODO! to think about)
+    location: "framework_activity_recognition.sampler.imbalanceddatasetsampler" # Location of the sampler script
+    parameter: {} # Parameters for the sampler
+
+  path_to_data_dir: "/home/malek/Master Thesis/Mecano Dataset Sample" # Path to the dataset
+  num_frames: 32      
+  sampling_rate: 2
+  train_jitter_scales: [256, 320]
+  train_crop_size: 224
+  test_crop_size: 256
+  input_channel_num: [3]
+
+student:
+  location: "architecture.mobilenet.MobileNetLogit" # Location of the student model script
+  width_mult: 0.5 # Width multiplier for the MobileNet model
+  dropout_prob: 0.2 # Dropout probability
+  name: "inception" # Name of the student model
+
+pretraining:
+  use: True # Whether to use a pretrained model
+  path: # Path to the pretrained I3D model
+  model_num_classes: 600 # Number of classes in the pretrained model
+  fine_tune_only_last_layer: False # Whether to fine-tune only the last layer
+
+train:
+  modality: "train_baseline" # Training modality
+  epoch: 200 # Number of training epochs
+  criterion: 
+    name : "CrossEntropyLoss" # Loss function
+  optimizer:
+    name: "SGD" # Optimizer type
+    parameter: {"lr": 0.05, "momentum": 0.9, "weight_decay": 0.00001} # Optimizer parameters
+  batch_size: 90 # Batch size for training
+  num_workers: 8 # Number of worker threads for data loading
+  scheduler:
+    use: True # Whether to use a learning rate scheduler
+    name: "MultiStepLR" # Scheduler type
+    parameter: {"milestones": [50,100,200,300,400,500,600,700], "gamma": 0.2} # Scheduler parameters
+  test_rate: 5 # Frequency of testing (e.g., every 5 epochs)
+  pin_memory: False # Whether to use pinned memory for data loading
+
+config:
+  path: "./config/train/mobilenetbaseline.yaml" # Path to this configuration file
