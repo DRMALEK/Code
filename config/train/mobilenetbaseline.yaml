@@ -1,10 +1,10 @@
-
-experiment:
+experiment: # Experiment configuration
   name: "MobileNetBaseline" # Name of the experiment
   model_save_path: "./model" # Path to save the trained model
   experiment_number: 0 # Experiment number, should be changed for each new experiment
+  log_path: "./log" # Path to save the log file
 
-data:
+data: # Data configuration
   name: "Meccano" # Name of the dataset
   util_location: "framework_activity_recognition.datautils.prepare_drivenact" # Location of the data utility script
   sampler:
@@ -20,19 +20,19 @@ data:
   test_crop_size: 256
   input_channel_num: [3]
 
-student:
+student: # Student model configuration
   location: "architecture.mobilenet.MobileNetLogit" # Location of the student model script
   width_mult: 0.5 # Width multiplier for the MobileNet model
   dropout_prob: 0.2 # Dropout probability
   name: "inception" # Name of the student model
 
-pretraining:
-  use: True # Whether to use a pretrained model
-  path: # Path to the pretrained I3D model
+pretraining: # Pretraining configuration
+  use: True # Whether to use a pretrained model (in tanma paper, they used a pretrained model on kinetics-600)
+  path: '/home/malek/Master Thesis/pre-trained-mobilenet-models/kinetics_mobilenet_0.5x_RGB_16_best.pth' # Path to the pretrained model
   model_num_classes: 600 # Number of classes in the pretrained model
   fine_tune_only_last_layer: False # Whether to fine-tune only the last layer
 
-train:
+train: # Training configuration
   modality: "train_baseline" # Training modality
   epoch: 200 # Number of training epochs
   criterion: 
@@ -49,5 +49,5 @@ train:
   test_rate: 5 # Frequency of testing (e.g., every 5 epochs)
   pin_memory: False # Whether to use pinned memory for data loading
 
-config:
+config: # Configuration information
   path: "./config/train/mobilenetbaseline.yaml" # Path to this configuration file

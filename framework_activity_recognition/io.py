@@ -22,7 +22,7 @@ def make_model_dir(config_file):
     """
     experiment_config = config_file["experiment"]
     model_dir = Path(experiment_config["model_save_path"]) / experiment_config["name"]
-    model_dir.mkdir(parents=True, exist_ok=True)
+    model_dir.mkdir(parents=True, exist_ok=True) # create folder if not exist and create parent folder if not exist
     return model_dir
 
 def make_logging_dir(config_file):

@@ -36,7 +36,6 @@ class Block(nn.Module):
 
 class MobileNetLogit(nn.Module):
     def __init__(self, config_file, architecture_config):
-    #num_classes=600, sample_size=224, width_mult=1.):
         super(MobileNetLogit, self).__init__()
 
         num_classes = config_file["train"]["num_classes"]
@@ -83,13 +82,11 @@ class MobileNetLogit(nn.Module):
 
 class MobileNet(nn.Module):
     def __init__(self, config_file, architecture_config):
-    #def __init__(self, num_classes=600, sample_size=224, width_mult=1.):
         super(MobileNet, self).__init__()
 
         num_classes = config_file["train"]["num_classes"]
         width_mult = architecture_config["width_mult"]
         dropout = architecture_config["dropout_prob"]
-        #dropout = 0.2
 
         input_channel = 32
         last_channel = 1024
@@ -118,7 +115,6 @@ class MobileNet(nn.Module):
         # building classifier
         self.classifier = nn.Sequential(
             nn.Dropout(dropout), #0.2 originally
-            #nn.Dropout(0.2),
             nn.Linear(last_channel, num_classes),
         )
 
@@ -164,117 +160,12 @@ def get_model(**kwargs):
 
 
 if __name__ == '__main__':
-    with open("/home/ctanama/framework/config2/mobilenetdrivepre.yaml", "r") as ymlfile:
-        #config = yaml.safe_load(ymlfile)
-        config = yaml.load(ymlfile, Loader=yaml.Loader)
-    #model = get_model(num_classes=600, sample_size = 112, width_mult=1.)
-    #model = get_model(config, config['architecture'])
-    config['train']["num_classes"] = config['pretraining']["model_num_classes"]
-    model = MobileNet(config, config['architecture'])
-    model = model.cuda()
-    model = nn.DataParallel(model, device_ids=None)
-    #print(model)
-    checkpoint = torch.load("/home/ctanama/pretrained/Pretrained-Models/kinetics_mobilenet_0.5x_RGB_16_best.pth")
-    print(len(checkpoint['state_dict']))
-    model.load_state_dict(checkpoint['state_dict'])
-
-    print(sum(p.numel() for p in model.parameters()))
-    new_dict = OrderedDict()
-
-    for k, v in checkpoint['state_dict'].items():
-        new_dict[k[7:]] = v
-    #print([k for k,v in new_dict.items()])
-    
-    same = True
-
-    for k,v in checkpoint['state_dict'].items():
-        if not torch.equal(checkpoint['state_dict'][k], new_dict[k[7:]]):
-            same = False
-
-    print(same)
-
-    checkpoint = torch.load("/home/ctanama/framework/model/StudentTeacherI3DMobileNetDrivePretraining/exp12/best_model.pth")
-    
-    new_dict = OrderedDict()
-
-    for k, v in checkpoint['student_model_state_dict'].items():
-        newKey = 'module.' + k
-        new_dict[newKey] = v
-
-    tens = torch.tensor([[1.,2.], [3.,4.]])
-    print(tens)
-    tens = tens.view(-1)
-    print(tens)
-    fill_values = tens[-1]
-    print(fill_values)
-    total_length = tens.numel()
-    print(total_length)
-    bucket_size=5
-    multiple, rest = divmod(total_length, bucket_size)
-    print(multiple, rest)
-    if multiple != 0 and rest != 0:
-        values_to_add = torch.ones(bucket_size - rest) * fill_values
-        tens = torch.cat([tens, values_to_add])
-    if multiple == 0:
-        tens = tens.view(1,total_length)
-    else:
-        tens = tens.view(-1, bucket_size)
-    print(tens)
-    
-    config['train']['num_classes'] = 34
-
-    model = MobileNet(config, config['architecture'])
-    
-    model.load_state_dict(checkpoint['student_model_state_dict'])
-    
-    #s = set()
-    s = torch.Tensor(np.array([]))
-
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            s = torch.cat((s, torch.flatten(param)))
-            #for data in torch.flatten(param):
-                #print(type(data))
-                #s.add(data)
-                #torch.cat((s,data))
-
-    print("4 bits")
-    uniques = torch.unique(s)
-    print(uniques.size())
-
-    checkpoint = torch.load("/home/ctanama/framework/model/StudentTeacherI3DMobileNetDrivePretraining/exp13/best_model.pth")
-
-    model.load_state_dict(checkpoint['student_model_state_dict'])
-
-    #s1 = set()
-    s1 = torch.Tensor(np.array([]))
-
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            s1 = torch.cat((s1, torch.flatten(param)))
-            #for data in torch.flatten(param):
-                #s1.add(data)
-
-    print("8 bits")
-    uniques1 = torch.unique(s1)
-    print(uniques1.size())
-
-    checkpoint = torch.load("/home/ctanama/framework/model/StudentTeacherI3DMobileNetDrivePretraining/exp11/best_model.pth")
-
-    model.load_state_dict(checkpoint['student_model_state_dict'])
-
-    s2 = torch.Tensor(np.array([]))
-
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            s2 = torch.cat((s2, torch.flatten(param)))
-            #for data in torch.flatten(param):
-                #s1.add(data)
-
-    print("2 bits")
-    uniques2 = torch.unique(s2)
-    print(uniques2.size())
-    #print(len(s1))
-    #input_var = Variable(torch.randn(8, 3, 16, 112, 112))
-    #output = model(input_var)
-    #print(output.shape)
+    config_file = yaml.load(open("config/train/mobilenetbaseline.yaml"))
+    architecture_config = yaml.load(open("config/architecture/mobilenet.yaml"))
+    model = MobileNet(config_file, architecture_config)
+    print(model)
+    input_var = Variable(torch.randn(1, 3, 16, 112, 112))
+    output = model(input_var)
+    print(output.size())
+    print(output)
+    print("Model is working")

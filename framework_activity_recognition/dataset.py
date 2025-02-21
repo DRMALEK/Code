@@ -8,8 +8,6 @@ from PIL import Image
 import math
 from framework_activity_recognition import transform
 
-
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -38,11 +36,25 @@ def temporal_sampling(frames, start_idx, end_idx, num_samples):
 
     return out_frames
 
+classes_name = [
+    'check_booklet', 'take_gray_perforated_bar', 'take_gray_angled_perforated_bar', 'align_objects', 'take_screw',
+    'plug_screw', 'take_bolt', 'tighten_bolt_with_hands', 'unscrew_screw_with_hands', 'pull_screw',
+    'put_gray_angled_perforated_bar', 'take_white_angled_perforated_bar', 'take_handlebar', 'plug_handlebar', 'pull_partial_model',
+    'put_partial_model', 'put_white_angled_perforated_bar', 'take_red_angled_perforated_bar', 'take_red_perforated_bar',
+    'put_red_perforated_bar', 'put_screw', 'take_partial_model', 'take_red_4_perforated_junction_bar', 'take_objects', 'take_screwdriver',
+    'screw_screw_with_screwdriver', 'align_screwdriver_to_screw', 'put_screwdriver', 'take_washer', 'take_wheels_axle', 'take_tire', 'take_rim',
+    'fit_rim_tire', 'take_rod', 'put_rod', 'put_washer', 'plug_rod', 'take_roller', 'browse_booklet', 'put_gray_perforated_bar',
+    'put_red_4_perforated_junction_bar', 'take_booklet', 'put_booklet', 'put_bolt', 'put_wheels_axle', 'take_red_perforated_junction_bar',
+    'put_tire', 'put_rim', 'pull_rod', 'put_roller', 'put_red_perforated_junction_bar', 'put_objects', 'take_wrench',
+    'put_wrench', 'align_wrench_to_bolt', 'tighten_bolt_with_wrench', 'unscrew_screw_with_screwdriver', 'put_red_angled_perforated_bar',
+    'loosen_bolt_with_hands', 'put_handlebar', 'screw_screw_with_hands'
+]
+
 class MeccanoDataset(torch.utils.data.Dataset):
     """
     A PyTorch Dataset class for the MECCANO dataset used for activity recognition.
 
-    Args:
+    Args:quantization_framework
         cfg (dict): Configuration dictionary containing dataset and training/testing parameters.
         mode (str): Mode in which the dataset is used. Must be one of ["train", "val", "test"].
         num_retries (int): Number of retries for loading a video. Default is 10.
@@ -69,10 +81,12 @@ class MeccanoDataset(torch.utils.data.Dataset):
         assert mode in ["train", "val", "test"], "Split '{}' not supported for MECCANO".format(mode)
         self.mode = mode
         self.cfg = cfg
-
         self._num_retries = num_retries
         self._num_clips = 1
-     
+        self.annotation_converter = classes_name
+ 
+        self.nClasses = len(self.annotation_converter)
+
         logger.info("Constructing MECCANO {}...".format(mode))
         self._construct_loader()
 

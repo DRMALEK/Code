@@ -383,7 +383,7 @@ class QuantizationAwareTrainingWrapper():
 
 class BenchmarkWrapper():
     """
-    Wrapper for testing model using test split of Drive&Act.
+    Wrapper for testing model using test split of Meccano dataset.
     """
     def __init__(self, network, num_classes, config_file, logger, annotation_converter, quantization_framework=False):
         """

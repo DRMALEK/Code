@@ -1,8 +1,8 @@
 data:
-  name: "DriveAndAct"
+  name: "Mecanno"
   util_location: "framework_activity_recognition.datautils.prepare_drivenact_test"
   split_nr: 0 # 1 2
-  folder_splits: # path to folder containing split ex: "./driveandact/iccv_activities_3s/activities_3s/"
+  folder_splits: # path to folder containing split ex: "./Mecanno/iccv_activities_3s/activities_3s/"
   data_path: # path to folder containing downsampled Drive&Act video data
   views: ["inner_mirror"]
   new_suffix: ".avi"

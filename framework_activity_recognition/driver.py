@@ -29,7 +29,7 @@ def train(config_file):
 
     if "teacher" in config_file:
         teacher_config = config_file["teacher"]
-    #teacher_config = config_file["teacher"]
+
     train_config = config_file["train"]
     data_config = config_file["data"]
     pretraining_config = config_file["pretraining"]
@@ -45,18 +45,18 @@ def train(config_file):
 
     logger.info("Data:" + config_file["data"]["name"])
 
-    annotation_converter = None
-
     #get annotation converter from training set if there is one (there should be one according to the Beispielcode)
     if hasattr(train_set, "annotation_converter"):
         annotation_converter = train_set.annotation_converter
 
-    #preparing to load pretrained model on student architecture
-    if "model_num_classes" in pretraining_config:
-        train_config["num_classes"] = pretraining_config["model_num_classes"]
-    else:
-        train_config["num_classes"] = pretraining_config["student_model_num_classes"]
 
+    # wether to use knwoledge distillation or not
+    if "model_num_classes" in pretraining_config:
+        train_config["num_classes"] = pretraining_config["model_num_classes"]    # without knowledge distillation
+    else:
+        train_config["num_classes"] = pretraining_config["student_model_num_classes"]           # with knowledge distillation
+
+    # load student network based on the configuration file
     student_network = get_entity_by_module_path(student_config["location"])(config_file, student_config)
 
     #load pretraining model on student network, teacher should use already trained model on a respective task
@@ -81,12 +81,13 @@ def train(config_file):
     logger.info("Loaded student architecture:" + student_config["location"].split('.')[-1])
 
     if data_config["sampler"]["use"]:
-        sampler = get_entity_by_module_path(data_config["sampler"]["location"])(train_set)
-        train_loader = DataLoader(train_set, sampler=sampler, batch_size=train_config["batch_size"], shuffle=False, num_workers=train_config["num_workers"])
+         sampler = get_entity_by_module_path(data_config["sampler"]["location"])(train_set)
+         train_loader = DataLoader(train_set, sampler=sampler, batch_size=train_config["batch_size"], shuffle=False, num_workers=train_config["num_workers"])
     else:
-        train_loader = DataLoader(train_set, batch_size=train_config["batch_size"], shuffle=True, num_workers=train_config["num_workers"])
+         train_loader = DataLoader(train_set, batch_size=train_config["batch_size"], shuffle=True, num_workers=train_config["num_workers"])
 
     test_loader = DataLoader(test_set, batch_size=train_config["batch_size"], shuffle=False, num_workers=train_config["num_workers"])
+    
     #determine loss criterion for student loss
     criterion = getattr(torch.nn, train_config["criterion"]["name"])()
     
@@ -96,79 +97,78 @@ def train(config_file):
     current_epoch = 0
 
     wrapper_input = {
-        'student_network': student_network,
-        'num_classes': num_classes,
-        'config_file': config_file,
-        'writer': writer,
-        'logger': logger,
-        'annotation_converter': annotation_converter,
-        'criterion': criterion,
-        'current_epoch': current_epoch,
-        'max_epochs': train_config["epoch"],
-        'test_rate': train_config["test_rate"],    
-    }
+         'student_network': student_network,
+         'num_classes': num_classes,
+         'config_file': config_file,
+         'writer': writer,
+         'logger': logger,
+         'annotation_converter': annotation_converter,
+         'criterion': criterion,
+         'current_epoch': current_epoch,
+         'max_epochs': train_config["epoch"],
+         'test_rate': train_config["test_rate"],    
+     }
 
     #copy config file to the directory with the best and latest model
     shutil.copyfile(config_file["config"]["path"], logging_dir / "config.yaml")
 
 
-    if train_config["modality"] == "train_st" or train_config["modality"] == "train_st_quant" or train_config["modality"] == "train_qd":
-        #preparing to load pretrained model on teacher architecture
-        train_config["num_classes"] = pretraining_config["teacher_model_num_classes"]
+    # if train_config["modality"] == "train_st" or train_config["modality"] == "train_st_quant" or train_config["modality"] == "train_qd":
+    #     #preparing to load pretrained model on teacher architecture
+    #     train_config["num_classes"] = pretraining_config["teacher_model_num_classes"]
 
-        teacher_network = get_entity_by_module_path(teacher_config["location"])(config_file, teacher_config)
+    #     teacher_network = get_entity_by_module_path(teacher_config["location"])(config_file, teacher_config)
 
-        train_config["num_classes"] = num_classes    
+    #     train_config["num_classes"] = num_classes    
 
-        teacher_network = replace_last_layer(teacher_network, config_file, teacher_config)
+    #     teacher_network = replace_last_layer(teacher_network, config_file, teacher_config)
 
-        #load teacher model
-        teacher_state_dict = torch.load(teacher_config["checkpoint"])
-        if "model_state_dict" in teacher_state_dict:
-            teacher_network.load_state_dict(teacher_state_dict["model_state_dict"])
-        elif "student_model_state_dict" in teacher_state_dict:
-            teacher_network.load_state_dict(teacher_state_dict["student_model_state_dict"])
+    #     #load teacher model
+    #     teacher_state_dict = torch.load(teacher_config["checkpoint"])
+    #     if "model_state_dict" in teacher_state_dict:
+    #         teacher_network.load_state_dict(teacher_state_dict["model_state_dict"])
+    #     elif "student_model_state_dict" in teacher_state_dict:
+    #         teacher_network.load_state_dict(teacher_state_dict["student_model_state_dict"])
 
-        wrapper_input["teacher_network"] = teacher_network
-        wrapper_input["temperature"] = train_config["temperature"]
-        wrapper_input["teacher_weight"] = train_config["teacher_weight"]
+    #     wrapper_input["teacher_network"] = teacher_network
+    #     wrapper_input["temperature"] = train_config["temperature"]
+    #     wrapper_input["teacher_weight"] = train_config["teacher_weight"]
 
-        logger.info("Loaded teacher architecture:" + teacher_config["location"].split('.')[-1])
+    #     logger.info("Loaded teacher architecture:" + teacher_config["location"].split('.')[-1])
 
-    quantizationFramework = False
+    # quantizationFramework = False
 
-    if train_config["modality"] == "train_quant" or train_config["modality"] == "train_st_quant":
-        quantizationFramework = True
+    # if train_config["modality"] == "train_quant" or train_config["modality"] == "train_st_quant":
+    #     quantizationFramework = True
 
-        student_network = torch.quantization.fuse_modules(student_network, train_config["quantization"]["fuse_module"])
+    #     student_network = torch.quantization.fuse_modules(student_network, train_config["quantization"]["fuse_module"])
 
-        student_network.qconfig = torch.quantization.get_default_qat_qconfig(train_config["quantization"]["backend"])
+    #     student_network.qconfig = torch.quantization.get_default_qat_qconfig(train_config["quantization"]["backend"])
 
-        torch.quantization.prepare_qat(student_network, inplace=True)
+    #     torch.quantization.prepare_qat(student_network, inplace=True)
 
-        wrapper_input["student_network"] = student_network
+    #     wrapper_input["student_network"] = student_network
 
-        wrapper_input["quantization_framework"] = quantizationFramework
+    #     wrapper_input["quantization_framework"] = quantizationFramework
 
-        wrapper_input["freeze_bn"] = train_config["quantization"]["freeze_bn"]
+    #     wrapper_input["freeze_bn"] = train_config["quantization"]["freeze_bn"]
 
-        wrapper_input["freeze_observer"] = train_config["quantization"]["freeze_observer"]
+    #     wrapper_input["freeze_observer"] = train_config["quantization"]["freeze_observer"]
 
-    #determine optimizer for student
-    optimizer = getattr(torch.optim, train_config["optimizer"]["name"])\
-        (filter(lambda p: p.requires_grad, student_network.parameters()), **train_config["optimizer"]["parameter"])
+    # #determine optimizer for student
+    # optimizer = getattr(torch.optim, train_config["optimizer"]["name"])\
+    #     (filter(lambda p: p.requires_grad, student_network.parameters()), **train_config["optimizer"]["parameter"])
 
-    wrapper_input["optimizer"] = optimizer
+    # wrapper_input["optimizer"] = optimizer
 
-    scheduler = None
+    # scheduler = None
 
-    #determine scheduler for student
-    if train_config["scheduler"]["use"]:
-        scheduler = getattr(torch.optim.lr_scheduler, train_config["scheduler"]["name"])(optimizer, **train_config["scheduler"]["parameter"])
-        wrapper_input["scheduler"] = scheduler
+    # #determine scheduler for student
+    # if train_config["scheduler"]["use"]:
+    #     scheduler = getattr(torch.optim.lr_scheduler, train_config["scheduler"]["name"])(optimizer, **train_config["scheduler"]["parameter"])
+    #     wrapper_input["scheduler"] = scheduler
 
     wrapper = QuantizationAwareTrainingWrapper(**wrapper_input)
-
     wrapper.train(train_loader, test_loader)
 
 def test_benchmark(config_file):
@@ -195,10 +195,13 @@ def test_benchmark(config_file):
     quantization_framework = False
 
     architecture_state_dict = torch.load(architecture_config["model"] + "/best_model.pth")
+    
     if "model_state_dict" in architecture_state_dict:
         architecture.load_state_dict(architecture_state_dict["model_state_dict"])
+    
     elif "student_model_state_dict" in architecture_state_dict:
         architecture.load_state_dict(architecture_state_dict["student_model_state_dict"])
+    
     else:
         quantization_framework = True
         architecture = torch.quantization.fuse_modules(architecture, architecture_state_dict["fuse_module"])
@@ -226,12 +229,17 @@ def load_state_dictionary(architecture, config_file, architecture_config):
     config_file: File
         configuration file to the respective training
     
+    note: 
+    For other architectures, the function removes the module. prefix from the keys in the state dictionary before loading it into the architecture. 
+    This is done to handle cases where the model was trained using nn.DataParallel, which adds a module. prefix to the keys.
+
+        
     Returns
     -------
     nn.Module: loaded_architecture
         architecture that is loaded with its pretrained model
     """
-    checkpoint = torch.load(config_file["pretraining"]["path"])
+    checkpoint = torch.load(config_file["pretraining"]["path"], map_location=torch.device('cpu'))
     #print(len(checkpoint['state_dict']))
     loaded_architecture = architecture
     #print(sum(p.numel() for p in loaded_architecture.parameters()))
@@ -245,7 +253,6 @@ def load_state_dictionary(architecture, config_file, architecture_config):
         loaded_architecture.load_state_dict(dictWithoutModule)
         #architecture.load_state_dict(checkpoint['state_dict'])
     return loaded_architecture
-    #return architecture
 
 def replace_last_layer(architecture, config_file, architecture_config):
     """
