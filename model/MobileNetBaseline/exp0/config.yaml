@@ -50,4 +50,4 @@ train: # Training configuration
   pin_memory: False # Whether to use pinned memory for data loading
 
 config: # Configuration information
-  path: "code/config/train/mobilenetbaseline.yaml" # Path to this configuration file
+  path: "./config/train/mobilenetbaseline.yaml" # Path to this configuration file

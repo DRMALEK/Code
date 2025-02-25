@@ -155,18 +155,16 @@ def train(config_file):
 
     #     wrapper_input["freeze_observer"] = train_config["quantization"]["freeze_observer"]
 
-    # #determine optimizer for student
-    # optimizer = getattr(torch.optim, train_config["optimizer"]["name"])\
-    #     (filter(lambda p: p.requires_grad, student_network.parameters()), **train_config["optimizer"]["parameter"])
+    # Determine optimizer for student network based on configuration file 
+    optimizer = getattr(torch.optim, train_config["optimizer"]["name"]) (filter(lambda p: p.requires_grad, student_network.parameters()), **train_config["optimizer"]["parameter"])
+    wrapper_input["optimizer"] = optimizer
 
-    # wrapper_input["optimizer"] = optimizer
+    scheduler = None
 
-    # scheduler = None
-
-    # #determine scheduler for student
-    # if train_config["scheduler"]["use"]:
-    #     scheduler = getattr(torch.optim.lr_scheduler, train_config["scheduler"]["name"])(optimizer, **train_config["scheduler"]["parameter"])
-    #     wrapper_input["scheduler"] = scheduler
+    #determine scheduler for student
+    if train_config["scheduler"]["use"]:
+          scheduler = getattr(torch.optim.lr_scheduler, train_config["scheduler"]["name"])(optimizer, **train_config["scheduler"]["parameter"])
+          wrapper_input["scheduler"] = scheduler
 
     wrapper = QuantizationAwareTrainingWrapper(**wrapper_input)
     wrapper.train(train_loader, test_loader)

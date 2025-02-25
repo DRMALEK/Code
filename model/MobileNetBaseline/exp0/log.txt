@@ -4,3 +4,10 @@
 2025-02-17 12:40:43,304 :: Data:Meccano
 2025-02-17 12:42:06,102 :: Data:Meccano
 2025-02-17 12:42:06,157 :: Loaded student architecture:MobileNetLogit
+2025-02-24 17:28:38,474 :: Data:Meccano
+2025-02-24 17:28:38,536 :: Loaded student architecture:MobileNet
+2025-02-24 17:44:31,061 :: Data:Meccano
+2025-02-24 17:44:31,105 :: Loaded student architecture:MobileNet
+2025-02-24 17:44:31,108 :: Starting training model/pretrained model
+2025-02-24 18:22:04,317 :: Data:Meccano
+2025-02-24 18:22:04,373 :: Loaded student architecture:MobileNet

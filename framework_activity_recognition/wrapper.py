@@ -64,7 +64,6 @@ class QuantizationAwareTrainingWrapper():
             train_loader: data loader of training dataset
             test_loader: data loader of test dataset
         """
-
         if torch.cuda.is_available():
             self.logger.info("CUDA FOUND")
             self.student_network.cuda()
@@ -164,6 +163,7 @@ class QuantizationAwareTrainingWrapper():
 
                 self.write_to_tensorboard(epoch, self.writer, self.annotation_converter, student_mean_recall, student_mean_precision, student_recall_list, student_precision_list, teacher_mean_recall, teacher_mean_precision, teacher_recall_list, teacher_precision_list)
 
+                # Save the model if the recall is better than the previous best recall
                 if student_mean_recall > self.best_recall:
                     self.best_recall = student_mean_recall
                     self.best_epoch = epoch

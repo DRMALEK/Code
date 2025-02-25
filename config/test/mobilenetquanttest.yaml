@@ -3,11 +3,9 @@ data:
   util_location: "framework_activity_recognition.datautils.prepare_drivenact_test"
   split_nr: 0
   folder_splits: # path to folder containing split ex: "./Mecanno/iccv_activities_3s/activities_3s/"
-  data_path: # path to folder containing downsampled Drive&Act video data
-  views: ["inner_mirror"]
-  new_suffix: ".avi"
-  n_frame: 16
-  frame_size: 224 # 112
+  path_to_data_dir: "/home/malek/Master Thesis/Mecano Dataset Sample" # Path to the dataset
+  num_frames: 16
+  #frame_size: 224 # 112
   
 architecture:
   location: "architecture.mobilenetquant.MobileNetLogit"
