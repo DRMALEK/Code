@@ -1,6 +1,6 @@
 experiment: # Experiment configuration
   name: "MobileNetBaseline" # Name of the experiment
-  model_save_path: "./model" # Path to save the trained model
+  model_save_path: "./results" # Path to save the trained model
   experiment_number: 0 # Experiment number, should be changed for each new experiment
   log_path: "./log" # Path to save the log file
 
@@ -28,13 +28,13 @@ student: # Student model configuration
 
 pretraining: # Pretraining configuration
   use: True # Whether to use a pretrained model (in tanma paper, they used a pretrained model on kinetics-600)
-  path: '/home/malek/Master Thesis/pre-trained-mobilenet-models/kinetics_mobilenet_0.5x_RGB_16_best.pth' # Path to the pretrained model
+  path: 'preTrainedModels/kinetics_mobilenet_0.5x_RGB_16_best.pth' # Path to the pretrained model
   model_num_classes: 600 # Number of classes in the pretrained model
   fine_tune_only_last_layer: False # Whether to fine-tune only the last layer
 
 train: # Training configuration
   modality: "train_baseline" # Training modality
-  epoch: 200 # Number of training epochs
+  epoch: 1 # Number of training epochs
   criterion: 
     name : "CrossEntropyLoss" # Loss function
   optimizer:
@@ -50,4 +50,4 @@ train: # Training configuration
   pin_memory: False # Whether to use pinned memory for data loading
 
 config: # Configuration information
-  path: "code/config/train/mobilenetbaseline.yaml" # Path to this configuration file
+  path: "config/train/mobilenetbaseline.yaml" # Path to this configuration file
