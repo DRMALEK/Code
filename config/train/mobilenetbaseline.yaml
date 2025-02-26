@@ -12,7 +12,7 @@ data: # Data configuration
     location: "framework_activity_recognition.sampler.imbalanceddatasetsampler" # Location of the sampler script
     parameter: {} # Parameters for the sampler
 
-  path_to_data_dir: "/home/malek/Master Thesis/Mecano Dataset Sample" # Path to the dataset
+  path_to_data_dir: "" # Path to the dataset
   num_frames: 32     # Similar to the authors of the mecanno dataset  
   sampling_rate: 2    # Similar to the authors of the mecanno dataset
   train_jitter_scales: [256, 320]

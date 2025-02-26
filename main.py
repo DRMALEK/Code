@@ -8,11 +8,14 @@ def main():
     parser.add_argument("--config_path", type=str, help="path to the yaml configuration file")
     parser.add_argument("--checkpoint", type=str, help="path to the .pt file to continue training.\
         This will be ignored if pretrained model is used")
+    parser.add_argument("--data_path", type=str, help="path to the data directory")
 
     args = parser.parse_args()
 
     config = load_config_file(args.config_path)
     
+    config["data"]["path_to_data_dir"] = args.data_path
+
     if args.training_type == "train":
         train(config)
     if args.training_type == "test":
