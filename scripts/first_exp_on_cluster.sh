@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 # Define some variables
 export DATA_PATH=$HOME/MeccanoDataset/RGB_frames
