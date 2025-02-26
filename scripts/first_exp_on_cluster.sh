@@ -27,4 +27,4 @@ pip install -r $WORKSPACE_PATH/code/requirements.txt
 echo "Dependencies are installed"
 
 ## run the code with specific parameters
-python $WORKSPACE_PATH/code/main.py --training_type train --config $WORKSPACE_PATH/code/config/train/config.yaml --path_to_data_dir $TMPDIR/RGB_frames
+python $WORKSPACE_PATH/code/main.py --training_type train --config $WORKSPACE_PATH/code/config/train/mobilenetbaseline.yaml --path_to_data_dir $TMPDIR/RGB_frames
