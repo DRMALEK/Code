@@ -1,0 +1,16 @@
+Data is copied to the temporary directory
+
+============================= JOB FEEDBACK =============================
+
+NodeName=uc2n282
+Job ID: 25349734
+Cluster: uc2
+User/Group: st_st181130/st_us-053030
+State: FAILED (exit code 2)
+Nodes: 1
+Cores per node: 2
+CPU Utilized: 00:00:05
+CPU Efficiency: 1.43% of 00:05:50 core-walltime
+Job Wall-clock time: 00:02:55
+Memory Utilized: 459.02 MB
+Memory Efficiency: 20.40% of 2.20 GB

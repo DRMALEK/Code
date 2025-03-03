@@ -9,7 +9,7 @@ export CODE_PATH=$HOME/code
 #cp -r $DATA_PATH $TMPDIR 
 
 # second copy code to the workspace
-cp -r $CODE_PATH $WORKSPACE_PATH
+#cp -r $CODE_PATH $WORKSPACE_PATH
 
 echo "Data is copied to the temporary directory"
 
@@ -18,9 +18,9 @@ echo "Data is copied to the temporary directory"
 
 ## install dependencies
 source $WORKSPACE_PATH/venv/bin/activate
-pip install -r $WORKSPACE_PATH/code/requirements-3.6.txt
+#pip install -r $WORKSPACE_PATH/code/requirements-3.9.txt
 
 #echo "Dependencies are installed"
 
 ## run the code with specific parameters
-python $WORKSPACE_PATH/code/main.py --training_type train --config $WORKSPACE_PATH/code/config/train/mobilenetbaseline.yaml --path_to_data_dir $TMPDIR/RGB_frames
+python $WORKSPACE_PATH/code/main.py --training_type train --config $WORKSPACE_PATH/code/config/train/mobilenetbaseline.yaml --data_path $TMPDIR/RGB_frames
