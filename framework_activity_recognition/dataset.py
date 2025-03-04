@@ -172,7 +172,8 @@ class MeccanoDataset(torch.utils.data.Dataset):
         frames = [frames]
         
         
-        return frames, label, index, {}
+        #return frames, label, index, {}
+        return frames, label
 
     def __len__(self):
         return len(self._path_to_videos)
