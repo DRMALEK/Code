@@ -28,7 +28,7 @@ student: # Student model configuration
 
 pretraining: # Pretraining configuration
   use: True # Whether to use a pretrained model (in tanma paper, they used a pretrained model on kinetics-600)
-  path: 'preTrainedModels/kinetics_mobilenet_0.5x_RGB_16_best.pth' # Path to the pretrained model
+  path: "" # Path to the pretrained model
   model_num_classes: 600 # Number of classes in the pretrained model
   fine_tune_only_last_layer: False # Whether to fine-tune only the last layer
 
@@ -50,4 +50,4 @@ train: # Training configuration
   pin_memory: False # Whether to use pinned memory for data loading
 
 config: # Configuration information
-  path: "config/train/mobilenetbaseline.yaml" # Path to this configuration file
+  path: "" # Path to this configuration file
