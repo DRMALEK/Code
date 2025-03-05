@@ -2,6 +2,7 @@ import os
 import numpy as np
 from PIL import Image
 from tqdm import tqdm
+import argparse
 
 def calculate_stats(dataset_path):
     """
@@ -75,23 +76,30 @@ def calculate_stats(dataset_path):
 
     return mean, std
 
-def main():
-    # Get dataset path from user
-    dataset_path = input("Enter the path to your dataset folder: ")
 
-    if not os.path.exists(dataset_path):
-        print(f"Error: Path {dataset_path} does not exist")
+def main():
+    parser = argparse.ArgumentParser(description="Calculate mean and std of pixel values across all images in the dataset")
+    parser.add_argument('data_path', type=str, help='Path to the main dataset folder')
+    parser.add_argument('output_file', type=str, help='Path to the output file')
+    args = parser.parse_args()
+    
+    # Get dataset path from arguments
+    data_path = args.data_path
+    output_file = args.output_file
+
+    if not os.path.exists(data_path):
+        print(f"Error: Path {data_path} does not exist")
         return
 
     print("Calculating mean and standard deviation...")
-    mean, std = calculate_stats(dataset_path)
+    mean, std = calculate_stats(data_path)
 
     print("\nResults:")
     print(f"Mean: {mean}")
     print(f"Std: {std}")
 
     # Save results to a file
-    with open("normalization_stats.txt", "w") as f:
+    with open(output_file, "w") as f:
         f.write(f"Mean: {mean}\n")
         f.write(f"Std: {std}\n")
 
