@@ -1,17 +1,17 @@
 data:
   name: "Mecanno"
   util_location: "framework_activity_recognition.datautils.prepare_mecanno_test"
-  path_to_data_dir: "/home/malek/Master Thesis/Mecano Dataset Sample" # Path to the dataset
+  path_to_data_dir: "" # Path to the dataset
   num_frames: 32
-  #frame_size: 224 # 112
+  test_crop_size: 256
 
 architecture:
   location: "architecture.mobilenet.MobileNet"
   width_mult: 0.5 # 1.0 1.5 2.0
   dropout_prob: 0.2
-  model: # path to MobileNet model checkpoint to test ex: ./best_model.pth, adjust according splits
+  model: "" #path to MobileNet model checkpoint to test ex: ./results, adjust according splits
 
 train:
-  batch_size: 64
-  num_workers: 4
+  batch_size: 8
+  num_workers: 2
   pin_memory: False

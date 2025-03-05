@@ -112,3 +112,6 @@ dmypy.json
 
 # pretrained models
 preTrainedModels/
+
+# results of training
+results/

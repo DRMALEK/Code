@@ -12,7 +12,7 @@ class QuantizationAwareTrainingWrapper():
     Wrapper for all the trainig modalities. Activation of some modalities are based on parameter passed in the constructor
     """
     def __init__(self, student_network, num_classes, config_file, optimizer, writer, logger, teacher_network = None, annotation_converter = None,  criterion = nn.CrossEntropyLoss(),\
-        current_epoch = 0, max_epochs = 100, test_rate = 10, scheduler = None, best_recall = 0.0, temperature=5, teacher_weight=0.7, quantization_framework=False, freeze_observer=None, freeze_bn=None):
+        current_epoch = 0, max_epochs = 100, test_rate = 10, scheduler = None, best_recall = 0.0, temperature=5, teacher_weight=0.7, quantization_framework=False, freeze_observer=None, freeze_bn=None, quantization_function=None):
         """
         Arguments:
             student_network: model to be trained using distillation loss
@@ -56,6 +56,8 @@ class QuantizationAwareTrainingWrapper():
         self.teacher_weight = teacher_weight
         self.freeze_bn = freeze_bn
         self.freeze_observer = freeze_observer
+        self.quantization_function = quantization_function
+    
 
     def train(self, train_loader, test_loader):
         """
@@ -110,6 +112,20 @@ class QuantizationAwareTrainingWrapper():
                 self.logger.info("Training on epoch " + str(self.current_epoch + 1) + ", batch " + str(i))
                 
                 inputs, target = data
+
+                 # Convert inputs and target to tensors if they are lists of lists
+                
+
+                if isinstance(inputs, list) and all(isinstance(i, list) for i in inputs):
+                    inputs = [torch.tensor(i) for i in inputs]
+                    inputs = torch.stack(inputs)
+
+                # Convert inputs and target to tensors if they are lists
+                if isinstance(inputs, list):
+                    inputs = torch.tensor(inputs)
+                if isinstance(target, list):
+                    target = torch.tensor(target)
+            
 
                 if torch.cuda.is_available():
                     inputs, target = Variable(inputs.cuda()), Variable(target.cuda())
@@ -495,7 +511,9 @@ class BenchmarkWrapper():
 
 
         inputs_cpu, targets_cpu = Variable(inputs), Variable(target)
-        inputs_gpu, targets_gpu = Variable(inputs.cuda(),volatile=True), Variable(target.cuda(),volatile=True)
+        
+        if torch.cuda.is_available():
+            inputs_gpu, targets_gpu = Variable(inputs.cuda(),volatile=True), Variable(target.cuda(),volatile=True)
 
         self.network.to('cpu')
 
@@ -514,7 +532,7 @@ class BenchmarkWrapper():
 
         print("Total CPU time 1000 pass: ", str(prof.self_cpu_time_total))
 
-        if self.quantization_framework is not True:
+        if self.quantization_framework is not True and torch.cuda.is_available():
             self.network.cuda()
             with torch.no_grad():
                 torch.cuda.synchronize()

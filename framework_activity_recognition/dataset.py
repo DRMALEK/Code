@@ -145,7 +145,7 @@ class MeccanoDataset(torch.utils.data.Dataset):
         frame_count = int(self._frame_start[index][:-4])
         while frame_count <= int(self._frame_end[index][:-4]):
             name_frame = str(frame_count).zfill(5)
-            image = Image.open(os.path.join(self.cfg["data"]["path_to_data_dir"], "frames", self._path_to_videos[index], name_frame + ".jpg"))
+            image = Image.open(os.path.join(self._path_to_videos[index], name_frame + ".jpg"))
             image = np.asarray(image)
             frames.append(torch.from_numpy(image))
             frame_count += 1
@@ -169,8 +169,6 @@ class MeccanoDataset(torch.utils.data.Dataset):
         )
         
         label = self._labels[index]
-        frames = [frames]
-        
         
         #return frames, label, index, {}
         return frames, label

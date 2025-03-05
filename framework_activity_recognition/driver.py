@@ -192,8 +192,9 @@ def test_benchmark(config_file):
 
     quantization_framework = False
 
-    architecture_state_dict = torch.load(architecture_config["model"] + "/best_model.pth")
-    
+    #architecture_state_dict = torch.load(architecture_config["model"] + "/best_model.pth")
+    architecture_state_dict = torch.load(architecture_config["model"])
+
     if "model_state_dict" in architecture_state_dict:
         architecture.load_state_dict(architecture_state_dict["model_state_dict"])
     
@@ -241,15 +242,20 @@ def load_state_dictionary(architecture, config_file, architecture_config):
     #print(len(checkpoint['state_dict']))
     loaded_architecture = architecture
     #print(sum(p.numel() for p in loaded_architecture.parameters()))
+    
+        
     if architecture_config["location"].split(".")[-1] == "I3D" or architecture_config["location"].split(".")[-1] == "I3DLogit":
         loaded_architecture.load_state_dict(checkpoint)
-        #architecture.load_state_dict(checkpoint)
-    else:
+
+    elif 'state_dict' in checkpoint:
         dictWithoutModule = OrderedDict()
         for k, v in checkpoint['state_dict'].items():
             dictWithoutModule[k[7:]] = v
         loaded_architecture.load_state_dict(dictWithoutModule)
         #architecture.load_state_dict(checkpoint['state_dict'])
+    #else:
+    #    loaded_architecture.load_state_dict(checkpoint)
+
     return loaded_architecture
 
 def replace_last_layer(architecture, config_file, architecture_config):

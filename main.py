@@ -15,14 +15,17 @@ def main():
     args = parser.parse_args()
 
     config = load_config_file(args.config_path)
-    
+
     config["data"]["path_to_data_dir"] = args.data_path
-    config["pretraining"]["path"] = args.pretrained_model
-    config["config"]["path"]= args.config_path
+
 
     if args.training_type == "train":
+        config["pretraining"]["path"] = args.pretrained_model
+        config["config"]["path"]= args.config_path
         train(config)
+
     if args.training_type == "test":
+        config["architecture"]["model"]= args.pretrained_model
         test_benchmark(config)
 
 if __name__ == "__main__":

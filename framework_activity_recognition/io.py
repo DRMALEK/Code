@@ -43,7 +43,7 @@ def make_benchmark_dir(config_file):
         config_file: configuration file
     """
     architecture_config = config_file["architecture"]
-    benchmark_dir = Path(architecture_config["model"]) / "benchmark"
+    benchmark_dir = Path(architecture_config["model"]).parent / "benchmark"
     benchmark_dir.mkdir(parents=True, exist_ok=True)
     return benchmark_dir
 
