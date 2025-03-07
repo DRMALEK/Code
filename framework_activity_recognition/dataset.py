@@ -156,6 +156,9 @@ class MeccanoDataset(torch.utils.data.Dataset):
         frames = frames / 255.0
         #frames = frames - torch.tensor(self.cfg["DATA"]["MEAN"])
         #frames = frames / torch.tensor(self.cfg["DATA"]["STD"])
+
+        #Mean: [0.4291935919783522, 0.4138912852383532, 0.3932020827306195]
+        #Std: [0.2106381314194434, 0.21905233733269974, 0.23907043718073798]
         
         # Transpose the frames to the correct format which is (channel or pixel value, frame number, height, width)
         frames = frames.permute(3, 0, 1, 2)
