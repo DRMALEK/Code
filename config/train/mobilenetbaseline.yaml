@@ -34,14 +34,14 @@ pretraining: # Pretraining configuration
 
 train: # Training configuration
   modality: "train_baseline" # Training modality
-  epoch: 2 # Number of training epochs
+  epoch: 100 # Number of training epochs
   criterion: 
     name : "CrossEntropyLoss" # Loss function
   optimizer:
     name: "SGD" # Optimizer type
     parameter: {"lr": 0.05, "momentum": 0.9, "weight_decay": 0.00001} # Optimizer parameters
-  batch_size: 8 # Batch size for training
-  num_workers: 1 # Number of worker threads for data loading
+  batch_size: 32 # Batch size for training
+  num_workers: 4 # Number of worker threads for data loading
   scheduler:
     use: True # Whether to use a learning rate scheduler
     name: "MultiStepLR" # Scheduler type
