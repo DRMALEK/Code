@@ -16,8 +16,6 @@ def prepare_meccano(config_file):
 
     return dataset_train, dataset_val
 
-
-
 def prepare_mecanno_test(config_file):
     """
     Construct Meccano train and validation Dataset instance based on the given configuration file

@@ -91,17 +91,17 @@ class MeccanoDataset(torch.utils.data.Dataset):
         self._construct_loader()
 
     def _construct_loader(self):
-        path_to_file = os.path.join(
+        path_to_csv_file = os.path.join(
             self.cfg["data"]["path_to_data_dir"], "{}.csv".format(self.mode)
         )
-        assert os.path.exists(path_to_file), "{} dir not found".format(path_to_file)
+        assert os.path.exists(path_to_csv_file), "{} dir not found".format(path_to_csv_file)
 
         self._path_to_videos = []
         self._labels = []
         self._spatial_temporal_idx = []
         self._frame_start = []
         self._frame_end = []
-        with open(path_to_file, "r") as f:
+        with open(path_to_csv_file, "r") as f:
             for clip_idx, path_label in enumerate(f.read().splitlines()):
                 if clip_idx == 0:
                     continue
@@ -117,10 +117,10 @@ class MeccanoDataset(torch.utils.data.Dataset):
                     self._labels.append(int(action_label))
                     self._spatial_temporal_idx.append(idx)
                 
-        assert len(self._path_to_videos) > 0, "Failed to load MECCANO split {} from {}".format(self.mode, path_to_file)
+        assert len(self._path_to_videos) > 0, "Failed to load MECCANO split {} from {}".format(self.mode, path_to_csv_file)
         logger.info(
             "Constructing MECCANO dataloader (size: {}) from {}".format(
-                len(self._path_to_videos), path_to_file
+                len(self._path_to_videos), path_to_csv_file
             )
         )
 
@@ -152,8 +152,10 @@ class MeccanoDataset(torch.utils.data.Dataset):
         frames = torch.stack(frames)
         frames = temporal_sampling(frames, int(self._frame_start[index][:-4]), int(self._frame_end[index][:-4]), self.cfg["data"]["num_frames"])
 
-        # Normalize the frames by subtracting the mean and dividing by the standard deviation of the dataset
-        frames = frames / 255.0
+        # Normalize the frames to [-1, 1]
+        frames = (frames / 255.0) * 2 - 1
+        
+        
         #frames = frames - torch.tensor(self.cfg["DATA"]["MEAN"])
         #frames = frames / torch.tensor(self.cfg["DATA"]["STD"])
 

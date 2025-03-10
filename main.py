@@ -1,4 +1,5 @@
 import argparse
+from framework_activity_recognition.datautils import prepare_meccano
 from framework_activity_recognition.io import load_config_file
 from framework_activity_recognition.driver import train, test_benchmark
 
@@ -29,4 +30,7 @@ def main():
         test_benchmark(config)
 
 if __name__ == "__main__":
-    main()
+    #main()
+    dataset_train, dataset_val = prepare_meccano(load_config_file("/home/malek/Master Thesis/code/config/train/mobilenetbaseline.yaml"))
+    dataset_train.__getitem__(0)
+    dataset_val.__getitem__(0)
