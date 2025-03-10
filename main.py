@@ -30,7 +30,4 @@ def main():
         test_benchmark(config)
 
 if __name__ == "__main__":
-    #main()
-    dataset_train, dataset_val = prepare_meccano(load_config_file("/home/malek/Master Thesis/code/config/train/mobilenetbaseline.yaml"))
-    dataset_train.__getitem__(0)
-    dataset_val.__getitem__(0)
+    main()
