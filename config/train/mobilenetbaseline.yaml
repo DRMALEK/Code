@@ -21,7 +21,7 @@ data: # Data configuration
   input_channel_num: [3]
 
 student: # Student model configuration
-  location: "architecture.mobilenet.MobileNet" # Location of the student model script
+  location: "architecture.mobilenet.MobileNetLogit" # Location of the student model script
   width_mult: 0.5 # Width multiplier for the MobileNet model, 0.5 is the smallest (possible values are 0.5, 1.0, 1.5, 2.0)
   dropout_prob: 0.2 # Dropout probability
   name: "inception" # Name of the student model

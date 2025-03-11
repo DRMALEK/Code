@@ -101,6 +101,7 @@ class QuantizationAwareTrainingWrapper():
             else:
                 self.logger.info("Starting training model/pretrained model")
 
+            # Freeze batch normalization and observer after certain epoch 
             if self.freeze_bn is not None:
                 if epoch > self.freeze_bn:
                     self.student_network.apply(torch.nn.intrinsic.qat.freeze_bn_stats)
@@ -108,21 +109,18 @@ class QuantizationAwareTrainingWrapper():
                 if epoch > self.freeze_observer:
                     self.student_network.apply(torch.quantization.disable_observer)
 
+            # Training loop
             for i, data in enumerate(train_loader, 0):
                 self.logger.info("Training on epoch " + str(self.current_epoch + 1) + ", batch " + str(i))
                 
                 inputs, target = data
 
-                 # Convert inputs and target to tensors if they are lists of lists
-                
-
+                # Convert inputs and target to tensors if they are lists of lists
                 if isinstance(inputs, list) and all(isinstance(i, list) for i in inputs):
                     inputs = [torch.tensor(i) for i in inputs]
                     inputs = torch.stack(inputs)
 
-                # Convert inputs and target to tensors if they are lists
-                if isinstance(inputs, list):
-                    inputs = torch.tensor(inputs)
+                # Convert target to tensor if it is a list
                 if isinstance(target, list):
                     target = torch.tensor(target)
             
@@ -152,6 +150,7 @@ class QuantizationAwareTrainingWrapper():
                     logSoftmaxFunction, klDiv = nn.LogSoftmax(dim=1), nn.KLDivLoss()
                     current_loss += self.teacher_weight * self.temperature**2 * klDiv(logSoftmaxFunction(student_outputs/self.temperature), softmaxFunction(teacher_outputs/self.temperature))
 
+
                 mini_batch_losses.append(float(current_loss))
                 current_loss.backward()
 
@@ -160,7 +159,7 @@ class QuantizationAwareTrainingWrapper():
                 self.optimizer.zero_grad()
 
             if self.scheduler is not None:
-                self.writer.add_scalar("Learning rate", self.scheduler.get_lr()[0], self.current_epoch + 1)
+                self.writer.add_scalar("Learning rate", self.scheduler.get_lr()[0], self.current_epoch + 1) 
                 self.scheduler.step()
             else:
                 for param_group in self.optimizer.param_groups:
