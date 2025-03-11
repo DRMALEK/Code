@@ -158,13 +158,6 @@ class QuantizationAwareTrainingWrapper():
                 self.optimizer.step()
                 self.optimizer.zero_grad()
 
-            if self.scheduler is not None:
-                self.writer.add_scalar("Learning rate", self.scheduler.get_lr()[0], self.current_epoch + 1) 
-                self.scheduler.step()
-            else:
-                for param_group in self.optimizer.param_groups:
-                    self.writer.add_scalar("Learning rate", param_group['lr'], self.current_epoch + 1)
-
             current_epoch_loss = np.mean(mini_batch_losses)
             self.writer.add_scalar("loss", current_epoch_loss, self.current_epoch + 1)
             self.logger.info("Loss for epoch " + str(self.current_epoch + 1) + " is " + str(current_epoch_loss))
@@ -221,6 +214,8 @@ class QuantizationAwareTrainingWrapper():
         teacher_class_total_pred = [0. for i in range(self.num_classes)]
         teacher_available_list = []
 
+        mini_batch_losses = []
+
         for data in test_loader:
             inputs, target = data
 
@@ -248,6 +243,8 @@ class QuantizationAwareTrainingWrapper():
                     teacher_outputs = self.teacher_network(inputs)
 
             softmaxFunction = nn.Softmax(dim=1)
+
+            mini_batch_losses.append(float(self.criterion(softmaxFunction(student_outputs), target)))
 
             _, student_pred = torch.max(softmaxFunction(student_outputs), 1)
 
@@ -287,6 +284,18 @@ class QuantizationAwareTrainingWrapper():
 
         teacher_recall_list = []
         teacher_precision_list = []
+
+        val_loss = np.mean(mini_batch_losses)
+        self.writer.add_scalar("Validation loss", val_loss, self.current_epoch + 1)
+        self.logger.info("Validation loss for epoch " + str(self.current_epoch + 1) + " is " + str(val_loss))
+
+        if self.scheduler is not None:
+            self.writer.add_scalar("Learning rate", self.scheduler.get_lr()[0], self.current_epoch + 1) 
+            self.scheduler.step(val_loss)
+        else:
+            for param_group in self.optimizer.param_groups:
+                self.writer.add_scalar("Learning rate", param_group['lr'], self.current_epoch + 1)
+
 
         for i in set(student_available_list):
             student_current_recall = student_class_correct[i] / student_class_total_target[i]
