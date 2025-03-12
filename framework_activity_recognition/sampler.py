@@ -1,10 +1,9 @@
 from typing import Callable
-from framework_activity_recognition.dataset import FileBasedDataset
-
 import pandas as pd
 import torch
 import torch.utils.data
 import torchvision
+
 
 
 class ImbalancedDatasetSampler(torch.utils.data.sampler.Sampler):
@@ -36,7 +35,7 @@ class ImbalancedDatasetSampler(torch.utils.data.sampler.Sampler):
         weights = 1.0 / label_to_count[df["label"]]
 
         self.weights = torch.DoubleTensor(weights.to_list())
-
+    
     def _get_labels(self, dataset):
         if self.callback_get_label:
             return self.callback_get_label(dataset)
@@ -48,8 +47,6 @@ class ImbalancedDatasetSampler(torch.utils.data.sampler.Sampler):
             return dataset.samples[:][1]
         elif isinstance(dataset, torch.utils.data.Subset):
             return dataset.dataset.imgs[:][1]
-        elif isinstance(dataset, FileBasedDataset):
-            return dataset.annotations_original
         elif isinstance(dataset, torch.utils.data.Dataset):
             return dataset.get_labels()
         else:

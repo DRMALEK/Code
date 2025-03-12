@@ -233,3 +233,6 @@ class MeccanoDataset(torch.utils.data.Dataset):
             # Perform center crop
             frames, _ = transform.uniform_crop(frames, crop_size, spatial_idx)
         return frames
+
+    def get_labels(self):
+        return self.annotation_converter
