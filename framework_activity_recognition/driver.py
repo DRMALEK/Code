@@ -16,6 +16,10 @@ from torch.utils.tensorboard import SummaryWriter
 from framework_activity_recognition.processing import get_entity_by_module_path
 from collections import OrderedDict
 
+# https://github.com/ufoym/imbalanced-dataset-sampler
+from torchsampler import ImbalancedDatasetSampler
+
+
 def train(config_file):
     """
     This method constructs training wrapper based on given configuration file
@@ -81,8 +85,7 @@ def train(config_file):
     logger.info("Loaded student architecture:" + student_config["location"].split('.')[-1])
 
     if data_config["sampler"]["use"]:
-         sampler = get_entity_by_module_path(data_config["sampler"]["location"])(train_set)
-         train_loader = DataLoader(train_set, sampler=sampler, batch_size=train_config["batch_size"], shuffle=False, num_workers=train_config["num_workers"])
+         train_loader = DataLoader(train_set, sampler=ImbalancedDatasetSampler(train_set), batch_size=train_config["batch_size"], shuffle=False, num_workers=train_config["num_workers"])
     else:
          train_loader = DataLoader(train_set, batch_size=train_config["batch_size"], shuffle=True, num_workers=train_config["num_workers"])
 
