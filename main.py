@@ -19,7 +19,6 @@ def main():
 
     config["data"]["path_to_data_dir"] = args.data_path
 
-
     if args.training_type == "train":
         config["pretraining"]["path"] = args.pretrained_model
         config["config"]["path"]= args.config_path

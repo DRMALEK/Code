@@ -8,7 +8,7 @@ data: # Data configuration
   name: "Meccano" # Name of the dataset
   util_location: "framework_activity_recognition.datautils.prepare_meccano" # Location of the data utility script
   sampler:
-    use: false # Whether to use a sampler (TODO! to think about)
+    use: true # Whether to use a sampler 
     location: "framework_activity_recognition.sampler.imbalanceddatasetsampler" # Location of the sampler script
     parameter: {} # Parameters for the sampler
 

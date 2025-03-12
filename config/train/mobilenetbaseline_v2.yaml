@@ -1,5 +1,5 @@
 experiment: # Experiment configuration
-  name: "MobileNetBaseline" # Name of the experiment
+  name: "MobileNetBaseline_v2" # Name of the experiment
   model_save_path: "./results" # Path to save the trained model
   experiment_number: 0 # Experiment number, should be changed for each new experiment
   log_path: "./log" # Path to save the log file
@@ -8,7 +8,7 @@ data: # Data configuration
   name: "Meccano" # Name of the dataset
   util_location: "framework_activity_recognition.datautils.prepare_meccano" # Location of the data utility script
   sampler:
-    use: false # Whether to use a sampler (TODO! to think about)
+    use: true # Whether to use a sampler (TODO! to think about)
     location: "framework_activity_recognition.sampler.imbalanceddatasetsampler" # Location of the sampler script
     parameter: {} # Parameters for the sampler
 
@@ -40,7 +40,7 @@ train: # Training configuration
   optimizer:
     name: "SGD" # Optimizer type
     parameter: {"lr": 0.1, "momentum": 0.9, "weight_decay": 0.00001} # Optimizer parameters
-  batch_size: 1 # Batch size for training
+  batch_size: 64 # Batch size for training
   num_workers: 1 # Number of worker threads for data loading
   scheduler:
     use: True # Whether to use a learning rate scheduler
