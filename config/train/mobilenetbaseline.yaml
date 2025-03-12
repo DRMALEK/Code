@@ -38,8 +38,8 @@ train: # Training configuration
   optimizer:
     name: "SGD" # Optimizer type
     parameter: {"lr": 0.1, "momentum": 0.9, "weight_decay": 0.00001} # Optimizer parameters
-  batch_size: 4 # Batch size for training
-  num_workers: 1 # Number of worker threads for data loading
+  batch_size: 64 # Batch size for training
+  num_workers: 4 # Number of worker threads for data loading
   scheduler:
     use: True # Whether to use a learning rate scheduler
     name: "ReduceLROnPlateau" # Scheduler type

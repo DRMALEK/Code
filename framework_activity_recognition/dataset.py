@@ -235,4 +235,4 @@ class MeccanoDataset(torch.utils.data.Dataset):
         return frames
 
     def get_labels(self):
-        return self.annotation_converter
+        return self._labels

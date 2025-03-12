@@ -9,8 +9,6 @@ data: # Data configuration
   util_location: "framework_activity_recognition.datautils.prepare_meccano" # Location of the data utility script
   sampler:
     use: true # Whether to use a sampler (TODO! to think about)
-    location: "framework_activity_recognition.sampler.imbalanceddatasetsampler" # Location of the sampler script
-    parameter: {} # Parameters for the sampler
 
   path_to_data_dir: "" # Path to the dataset
   num_frames: 32     # Similar to the authors of the mecanno dataset  
@@ -41,7 +39,7 @@ train: # Training configuration
     name: "SGD" # Optimizer type
     parameter: {"lr": 0.1, "momentum": 0.9, "weight_decay": 0.00001} # Optimizer parameters
   batch_size: 64 # Batch size for training
-  num_workers: 1 # Number of worker threads for data loading
+  num_workers: 4 # Number of worker threads for data loading
   scheduler:
     use: True # Whether to use a learning rate scheduler
     name: "ReduceLROnPlateau" # Scheduler type
