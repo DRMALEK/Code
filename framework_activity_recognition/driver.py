@@ -285,4 +285,7 @@ def replace_last_layer(architecture, config_file, architecture_config):
         out_features = config_file["train"]["num_classes"]
         replaced_architecture.classifier[-1] = torch.nn.Linear(in_features, out_features)
 
+        print('out_features:', out_features)
+
+
     return replaced_architecture
