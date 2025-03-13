@@ -6,11 +6,17 @@ experiment:
 data:
   name: "Mecanno"
   util_location: "framework_activity_recognition.datautils.prepare_meccano" # Location of the data utility script
-  data_path: # path to folder containing downsampled Drive&Act video data
   sampler:
     use: True
-  n_frame: 16 # 32 64
+  
   frame_size: 224
+  path_to_data_dir: "" # Path to the dataset
+  num_frames: 32     # Similar to the authors of the mecanno dataset  
+  sampling_rate: 2    # Similar to the authors of the mecanno dataset
+  train_jitter_scales: [256, 320]
+  train_crop_size: 224
+  test_crop_size: 256
+  input_channel_num: [3]
 
 student:
   location: "architecture.i3d_inception.I3DLogit"
