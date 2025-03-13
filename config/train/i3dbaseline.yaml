@@ -24,7 +24,7 @@ pretraining:
   model_num_classes: 400
   fine_tune_only_last_layer: False
   last_layer_variable: "conv3d_0c_1x1"
-  last_layer_class: "architecture.i3d.Unit3Dpy"
+  last_layer_class: "architecture.i3d_inception.Unit3Dpy"
   last_layer_parameter: {"in_channels": 1024, "kernel_size": !!python/tuple [1, 1 ,1], "activation": null, "use_bias": True, "use_bn": False}
 
 train:
