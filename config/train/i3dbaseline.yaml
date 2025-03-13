@@ -41,7 +41,7 @@ train:
   optimizer:
     name: "SGD"
     parameter: {"lr": 0.1, "momentum": 0.9}
-  batch_size: 15
+  batch_size: 32
   num_workers: 4
 
   scheduler:
