@@ -158,7 +158,7 @@ class QuantizationAwareTrainingWrapper():
                 self.optimizer.zero_grad()
 
             current_epoch_loss = np.mean(mini_batch_losses)
-            self.writer.add_scalar("loss", current_epoch_loss, self.current_epoch + 1)
+            self.writer.add_scalar("Train loss", current_epoch_loss, self.current_epoch + 1)
             self.logger.info("Loss for epoch " + str(self.current_epoch + 1) + " is " + str(current_epoch_loss))
 
             if epoch % self.test_rate == 0:
@@ -278,12 +278,13 @@ class QuantizationAwareTrainingWrapper():
                     teacher_class_total_target[teacher_current_target] += 1
                     teacher_available_list.append(teacher_current_target)
 
-        student_recall_list = []
-        student_precision_list = []
 
-        teacher_recall_list = []
-        teacher_precision_list = []
+        student_recall_list = [float('nan')] * self.num_classes
+        student_precision_list = [float('nan')] * self.num_classes
 
+        teacher_recall_list = [float('nan')] * self.num_classes
+        teacher_precision_list = [float('nan')] * self.num_classes
+        
         val_loss = np.mean(mini_batch_losses)
         self.writer.add_scalar("Validation loss", val_loss, self.current_epoch + 1)
         self.logger.info("Validation loss for epoch " + str(self.current_epoch + 1) + " is " + str(val_loss))
