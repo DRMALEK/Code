@@ -10,7 +10,6 @@ data: # Data configuration
   sampler:
     use: true # Whether to use a sampler (TODO! to think about)
 
-  path_to_data_dir: "" # Path to the dataset
   num_frames: 32     # Similar to the authors of the mecanno dataset  
   sampling_rate: 2    # Similar to the authors of the mecanno dataset
   train_jitter_scales: [256, 320]
@@ -47,6 +46,3 @@ train: # Training configuration
     parameter: {"factor": 0.1, "patience": 10, "threshold": 0.0001, "min_lr": 0.0001} # Scheduler parameters
   test_rate: 5 # Frequency of testing (e.g., every 5 epochs)
   pin_memory: False # Whether to use pinned memory for data loading
-
-config: # Configuration information
-  path: "" # Path to this configuration file

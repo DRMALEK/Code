@@ -7,11 +7,8 @@ def main():
     parser = argparse.ArgumentParser("Training framework")
     parser.add_argument("--training_type", type=str, choices={"train", "test"}, help="choose training type")
     parser.add_argument("--config_path", type=str, help="path to the yaml configuration file")
-    parser.add_argument("--checkpoint", type=str, help="path to the .pt file to continue training.\
-        This will be ignored if pretrained model is used")
     parser.add_argument("--data_path", type=str, help="path to the data directory")
     parser.add_argument("--pretrained_model", type=str, help="path to the pretrained model")
-
 
     args = parser.parse_args()
 
