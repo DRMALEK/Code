@@ -1,6 +1,6 @@
 data:
   name: "Mecanno"
-  util_location: "framework_activity_recognition.datautils.prepare_meccano" # Location of the data utility script
+  util_location: "framework_activity_recognition.datautils.prepare_mecanno_test" # Location of the data utility script
   n_frame: 16 # 32 64
   frame_size: 224
   path_to_data_dir: "" # Path to the dataset
