@@ -46,3 +46,6 @@ train: # Training configuration
     parameter: {"factor": 0.1, "patience": 10, "threshold": 0.0001, "min_lr": 0.0001} # Scheduler parameters
   test_rate: 10 # Frequency of testing (e.g., every 5 epochs)
   pin_memory: False # Whether to use pinned memory for data loading
+
+config:
+  path:""
