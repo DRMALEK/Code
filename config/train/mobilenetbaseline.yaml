@@ -48,4 +48,4 @@ train: # Training configuration
   pin_memory: False # Whether to use pinned memory for data loading
 
 config:
-  path:""
+  path: ""
