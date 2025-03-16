@@ -345,9 +345,9 @@ class QuantizationAwareTrainingWrapper():
             teacher_mean_recall = np.mean(teacher_recall_list)
             teacher_mean_precision = np.nanmean(teacher_precision_list)
 
-            return student_mean_recall, student_mean_precision, student_recall_list, student_precision_list, teacher_mean_recall, teacher_mean_precision, teacher_recall_list, teacher_precision_list, top1_accuracy, top5_accuracy
+            return student_mean_recall, student_mean_precision, student_recall_list, student_precision_list, teacher_mean_recall, teacher_mean_precision, teacher_recall_list, teacher_precision_list
 
-        return student_mean_recall, student_mean_precision, student_recall_list, student_precision_list, None, None, None, None, top1_accuracy, top5_accuracy
+        return student_mean_recall, student_mean_precision, student_recall_list, student_precision_list, None, None, None, None
     
     def write_to_tensorboard(self, epoch, writer, annotation_converter, student_mean_recall, student_mean_precision, student_recall_list, \
         student_precision_list, teacher_mean_recall = None, teacher_mean_precision = None, teacher_recall_list = None, teacher_precision_list = None):
@@ -610,9 +610,3 @@ class BenchmarkWrapper():
                 torch.cuda.synchronize()
 
                 self.logger.info("GPU inference time (ms): " + str(start_event.elapsed_time(end_event)))
-
-
-
-
-
-
