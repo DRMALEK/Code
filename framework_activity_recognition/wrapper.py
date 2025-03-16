@@ -215,11 +215,15 @@ class QuantizationAwareTrainingWrapper():
 
         mini_batch_losses = []
 
+        top1_correct = 0
+        top5_correct = 0
+        total_samples = 0
+
         for data in test_loader:
             inputs, target = data
 
             if torch.cuda.is_available() and self.quantization_framework is False:
-                inputs, target = Variable(inputs.cuda(),volatile=True), Variable(target.cuda(),volatile=True)
+                inputs, target = Variable(inputs.cuda(), volatile=True), Variable(target.cuda(), volatile=True)
             else:
                 inputs, target = Variable(inputs), Variable(target)
 
@@ -278,24 +282,31 @@ class QuantizationAwareTrainingWrapper():
                     teacher_class_total_target[teacher_current_target] += 1
                     teacher_available_list.append(teacher_current_target)
 
+            # Calculate top-1 and top-5 accuracy
+            total_samples += target.size(0)
+            _, top5_pred = student_outputs.topk(5, 1, True, True)
+            top5_pred = top5_pred.t()
+            correct = top5_pred.eq(target.view(1, -1).expand_as(top5_pred))
+
+            top1_correct += correct[:1].view(-1).float().sum(0, keepdim=True).item()
+            top5_correct += correct[:5].view(-1).float().sum(0, keepdim=True).item()
 
         student_recall_list = [float('nan')] * self.num_classes
         student_precision_list = [float('nan')] * self.num_classes
 
         teacher_recall_list = [float('nan')] * self.num_classes
         teacher_precision_list = [float('nan')] * self.num_classes
-        
+
         val_loss = np.mean(mini_batch_losses)
         self.writer.add_scalar("Validation loss", val_loss, self.current_epoch + 1)
         self.logger.info("Validation loss for epoch " + str(self.current_epoch + 1) + " is " + str(val_loss))
 
         if self.scheduler is not None:
-            self.writer.add_scalar("Learning rate", self.optimizer.param_groups[0]['lr'], self.current_epoch + 1) 
+            self.writer.add_scalar("Learning rate", self.optimizer.param_groups[0]['lr'], self.current_epoch + 1)
             self.scheduler.step(val_loss)
         else:
             for param_group in self.optimizer.param_groups:
                 self.writer.add_scalar("Learning rate", param_group['lr'], self.current_epoch + 1)
-
 
         for i in set(student_available_list):
             student_current_recall = student_class_correct[i] / student_class_total_target[i]
@@ -305,11 +316,20 @@ class QuantizationAwareTrainingWrapper():
             else:
                 student_current_precision = float('nan')
 
-            student_recall_list.append(student_current_recall)
-            student_precision_list.append(student_current_precision)
+            student_recall_list[i] = student_current_recall
+            student_precision_list[i] = student_current_precision
 
-        student_mean_recall = np.mean(student_recall_list)
+        student_mean_recall = np.nanmean(student_recall_list)
         student_mean_precision = np.nanmean(student_precision_list)
+
+        top1_accuracy = top1_correct / total_samples
+        top5_accuracy = top5_correct / total_samples
+
+        self.writer.add_scalar("Top-1 Accuracy", top1_accuracy, self.current_epoch + 1)
+        self.writer.add_scalar("Top-5 Accuracy", top5_accuracy, self.current_epoch + 1)
+        self.logger.info("Top-1 Accuracy for epoch " + str(self.current_epoch + 1) + " is " + str(top1_accuracy))
+        self.logger.info("Top-5 Accuracy for epoch " + str(self.current_epoch + 1) + " is " + str(top5_accuracy))
+
         if self.teacher_network is not None:
             for i in set(teacher_available_list):
                 teacher_current_recall = teacher_class_correct[i] / teacher_class_total_target[i]
@@ -319,16 +339,16 @@ class QuantizationAwareTrainingWrapper():
                 else:
                     teacher_current_precision = float('nan')
 
-                teacher_recall_list.append(teacher_current_recall)
-                teacher_precision_list.append(teacher_current_precision)
+                teacher_recall_list[i] = teacher_current_recall
+                teacher_precision_list[i] = teacher_current_precision
 
             teacher_mean_recall = np.mean(teacher_recall_list)
             teacher_mean_precision = np.nanmean(teacher_precision_list)
 
-            return student_mean_recall, student_mean_precision, student_recall_list, student_precision_list, teacher_mean_recall, teacher_mean_precision, teacher_recall_list, teacher_precision_list
+            return student_mean_recall, student_mean_precision, student_recall_list, student_precision_list, teacher_mean_recall, teacher_mean_precision, teacher_recall_list, teacher_precision_list, top1_accuracy, top5_accuracy
 
-        return student_mean_recall, student_mean_precision, student_recall_list, student_precision_list, None, None, None, None
-
+        return student_mean_recall, student_mean_precision, student_recall_list, student_precision_list, None, None, None, None, top1_accuracy, top5_accuracy
+    
     def write_to_tensorboard(self, epoch, writer, annotation_converter, student_mean_recall, student_mean_precision, student_recall_list, \
         student_precision_list, teacher_mean_recall = None, teacher_mean_precision = None, teacher_recall_list = None, teacher_precision_list = None):
         """
@@ -438,7 +458,6 @@ class BenchmarkWrapper():
         else:
             print("Testing. Pytorch version < 0.4.0")
 
-        
         self.network.eval()
 
         network_class_correct = [0. for i in range(self.num_classes)]
@@ -447,11 +466,15 @@ class BenchmarkWrapper():
         network_class_total_pred = [0. for i in range(self.num_classes)]
         network_available_list = []
 
+        top1_correct = 0
+        top5_correct = 0
+        total_samples = 0
+
         for data in test_loader:
             inputs, target = data
 
             if torch.cuda.is_available() and self.quantization_framework is False:
-                inputs, target = Variable(inputs.cuda(),volatile=True), Variable(target.cuda(),volatile=True)
+                inputs, target = Variable(inputs.cuda(), volatile=True), Variable(target.cuda(), volatile=True)
                 self.network.cuda()
             else:
                 inputs, target = Variable(inputs), Variable(target)
@@ -472,13 +495,22 @@ class BenchmarkWrapper():
             for i in range(len(target.data)):
                 network_current_target = int(target.data[i])
                 network_current_prediction = int(network_pred[i])
-                #add 1 if the target is classified right
+                # add 1 if the target is classified right
                 network_class_correct[network_current_target] += network_correct[i]
-                #add 1 if the prediction is false
+                # add 1 if the prediction is false
                 network_class_incorrect[network_current_prediction] += network_incorrect[i]
                 network_class_total_pred[network_current_prediction] += 1
                 network_class_total_target[network_current_target] += 1
                 network_available_list.append(network_current_target)
+
+            # Calculate top-1 and top-5 accuracy
+            total_samples += target.size(0)
+            _, top5_pred = network_outputs.topk(5, 1, True, True)
+            top5_pred = top5_pred.t()
+            correct = top5_pred.eq(target.view(1, -1).expand_as(top5_pred))
+
+            top1_correct += correct[:1].view(-1).float().sum(0, keepdim=True).item()
+            top5_correct += correct[:5].view(-1).float().sum(0, keepdim=True).item()
 
         network_recall_list = []
         network_precision_list = []
@@ -497,8 +529,13 @@ class BenchmarkWrapper():
         network_mean_recall = np.mean(network_recall_list)
         network_mean_precision = np.nanmean(network_precision_list)
 
+        top1_accuracy = top1_correct / total_samples
+        top5_accuracy = top5_correct / total_samples
+
         self.logger.info("Mean recall: " + str(network_mean_recall))
         self.logger.info("Mean precision: " + str(network_mean_precision))
+        self.logger.info("Top-1 Accuracy: " + str(top1_accuracy))
+        self.logger.info("Top-5 Accuracy: " + str(top5_accuracy))
 
         for i in range(len(network_recall_list)):
             self.logger.info("Mean recall for class " + str(i) + " (" + str(self.annotation_converter[i]) + ")" + ": " + str(network_recall_list[i]))
@@ -507,7 +544,7 @@ class BenchmarkWrapper():
         softmaxFunction = nn.Softmax(dim=1)
 
         torch.save(self.network.state_dict(), "temp.p")
-        self.logger.info('Size (MB): ' + str(os.path.getsize("temp.p")/1e6))
+        self.logger.info('Size (MB): ' + str(os.path.getsize("temp.p") / 1e6))
         os.remove('temp.p')
 
         inputs_batch, target_batch = next(iter(test_loader))
@@ -515,13 +552,12 @@ class BenchmarkWrapper():
         inputs = inputs_batch[0]
         target = target_batch[0]
 
-        inputs = inputs[None,:,:,:,:]
-
+        inputs = inputs[None, :, :, :, :]
 
         inputs_cpu, targets_cpu = Variable(inputs), Variable(target)
-        
+
         if torch.cuda.is_available():
-            inputs_gpu, targets_gpu = Variable(inputs.cuda(),volatile=True), Variable(target.cuda(),volatile=True)
+            inputs_gpu, targets_gpu = Variable(inputs.cuda(), volatile=True), Variable(target.cuda(), volatile=True)
 
         self.network.to('cpu')
 
