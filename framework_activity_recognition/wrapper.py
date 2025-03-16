@@ -288,8 +288,8 @@ class QuantizationAwareTrainingWrapper():
             top5_pred = top5_pred.t()
             correct = top5_pred.eq(target.view(1, -1).expand_as(top5_pred))
 
-            top1_correct += correct[:1].view(-1).float().sum(0, keepdim=True).item()
-            top5_correct += correct[:5].view(-1).float().sum(0, keepdim=True).item()
+            top1_correct += correct[:1].reshape(-1).float().sum(0, keepdim=True).item()
+            top5_correct += correct[:5].reshape(-1).float().sum(0, keepdim=True).item()
 
         student_recall_list = [float('nan')] * self.num_classes
         student_precision_list = [float('nan')] * self.num_classes
@@ -473,6 +473,16 @@ class BenchmarkWrapper():
         for data in test_loader:
             inputs, target = data
 
+             # Convert inputs and target to tensors if they are lists of lists
+            if isinstance(inputs, list) and all(isinstance(i, list) for i in inputs):
+                inputs = [torch.tensor(i) for i in inputs]
+                inputs = torch.stack(inputs)
+
+            # Convert target to tensor if it is a list
+            if isinstance(target, list):
+                target = torch.tensor(target)
+
+
             if torch.cuda.is_available() and self.quantization_framework is False:
                 inputs, target = Variable(inputs.cuda(), volatile=True), Variable(target.cuda(), volatile=True)
                 self.network.cuda()
@@ -486,6 +496,9 @@ class BenchmarkWrapper():
                     network_outputs = self.network(inputs)
 
             softmaxFunction = nn.Softmax(dim=1)
+
+            print(network_outputs)
+            print(network_outputs.size())
 
             _, network_pred = torch.max(softmaxFunction(network_outputs), 1)
 
@@ -512,8 +525,8 @@ class BenchmarkWrapper():
             top5_pred = top5_pred.t()
             correct = top5_pred.eq(target.view(1, -1).expand_as(top5_pred))
 
-            top1_correct += correct[:1].view(-1).float().sum(0, keepdim=True).item()
-            top5_correct += correct[:5].view(-1).float().sum(0, keepdim=True).item()
+            top1_correct += correct[:1].reshape(-1).float().sum(0, keepdim=True).item()
+            top5_correct += correct[:5].reshape(-1).float().sum(0, keepdim=True).item()
 
         network_recall_list = []
         network_precision_list = []

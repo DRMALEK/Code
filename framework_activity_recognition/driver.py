@@ -196,7 +196,7 @@ def test_benchmark(config_file):
     quantization_framework = False
 
     #architecture_state_dict = torch.load(architecture_config["model"] + "/best_model.pth")
-    architecture_state_dict = torch.load(architecture_config["model"])
+    architecture_state_dict = torch.load(architecture_config["model"], map_location=torch.device('cpu'))
 
     if "model_state_dict" in architecture_state_dict:
         architecture.load_state_dict(architecture_state_dict["model_state_dict"])
@@ -277,15 +277,16 @@ def replace_last_layer(architecture, config_file, architecture_config):
     """
     replaced_architecture = architecture
     
-    if architecture_config["location"].split(".")[-1] == "I3D" or architecture_config["location"].split(".")[-1] == "I3DLogit":
-        setattr(replaced_architecture, config_file["pretraining"]["last_layer_variable"], \
-                    get_entity_by_module_path(config_file["pretraining"]["last_layer_class"])(out_channels=config_file["train"]["num_classes"], **config_file["pretraining"]["last_layer_parameter"]))
+    if architecture_config["location"].split(".")[-1] in ["I3D", "I3DLogit"]:
+        last_layer_class = get_entity_by_module_path(config_file["pretraining"]["last_layer_class"])
+        last_layer = last_layer_class(out_channels=config_file["train"]["num_classes"], **config_file["pretraining"]["last_layer_parameter"])
+        setattr(replaced_architecture, config_file["pretraining"]["last_layer_variable"], last_layer)
+    
     else:
         in_features = architecture.classifier[-1].in_features
         out_features = config_file["train"]["num_classes"]
         replaced_architecture.classifier[-1] = torch.nn.Linear(in_features, out_features)
 
-        print('out_features:', out_features)
 
 
     return replaced_architecture

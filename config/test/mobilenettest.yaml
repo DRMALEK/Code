@@ -7,7 +7,7 @@ data:
 
 architecture:
   location: "architecture.mobilenet.MobileNetLogit"
-  width_mult: 0.5 # 1.0 1.5 2.0
+  width_mult: 1 # 1.0 1.5 2.0
   dropout_prob: 0.2
   model: "" #path to MobileNet model checkpoint to test ex: ./results, adjust according splits
 

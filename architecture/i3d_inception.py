@@ -1,10 +1,8 @@
 import math
 import os
-
 import numpy as np
 import torch
 from torch.nn import ReplicationPad3d
-
 
 def get_padding_shape(filter_shape, stride):
     def _pad_top_bottom(filter_dim, stride_val):

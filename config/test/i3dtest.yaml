@@ -15,6 +15,6 @@ architecture:
   model: # path to I3D model checkpoint to test ex: ./best_model.pth, adjust according splits
 
 train:
-  batch_size: 15
+  batch_size: 2
   num_workers: 4
   pin_memory: False
