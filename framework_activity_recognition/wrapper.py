@@ -489,8 +489,11 @@ class BenchmarkWrapper():
 
             _, network_pred = torch.max(softmaxFunction(network_outputs), 1)
 
-            network_correct = [1 if current_pred.item() == current_target.item() else 0 for current_pred, current_target in zip(network_pred, target.data)]
-            network_incorrect = [1 if current_pred.item() != current_target.item() else 0 for current_pred, current_target in zip(network_pred, target.data)]
+            print(network_pred)
+            print(network_pred.size())
+
+            network_correct = [1 if current_pred == current_target else 0 for current_pred, current_target in zip(network_pred, target.data)]
+            network_incorrect = [1 if current_pred != current_target else 0 for current_pred, current_target in zip(network_pred, target.data)]
 
             for i in range(len(target.data)):
                 network_current_target = int(target.data[i])
