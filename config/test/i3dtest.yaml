@@ -6,7 +6,7 @@ data:
   path_to_data_dir: "" # Path to the dataset
 
 architecture:
-  location: "architecture.i3d.I3DLogit"
+  location: "architecture.i3d_inception.I3DLogit"
   modality: "rgb"
   dropout_prob: 0.5
   name: "inception"
