@@ -1,7 +1,7 @@
 experiment: # Experiment configuration
   name: "MobileNetBaseline" # Name of the experiment
   model_save_path: "./results" # Path to save the trained model
-  experiment_number: 1 # Experiment number, should be changed for each new experiment
+  experiment_number: 2 # Experiment number, should be changed for each new experiment
   log_path: "./log" # Path to save the log file
 
 data: # Data configuration
@@ -35,15 +35,15 @@ train: # Training configuration
   criterion: 
     name : "CrossEntropyLoss" # Loss function
   optimizer:
-    name: "SGD" # Optimizer type
-    parameter: {"lr": 0.05, "momentum": 0.9, "weight_decay": 0.00001}
+    name: "AdamW" # Optimizer type
+    parameter: {"lr": 0.1, "weight_decay": 0.0001}
   batch_size: 96 # Batch size for training
   num_workers: 8 # Number of worker threads for data loading
   scheduler:
     use: True # Whether to use a learning rate scheduler
-    name: "MultiStepLR"
+    name: "CosineAnnealingLR" # Scheduler type
     #parameter: {"milestones": [50,100,200,300,400,500,600,700], "gamma": 0.2} # Scheduler parameters
-    parameter: {"milestones": [50,100,200,300,400,500,600,700], "gamma": 0.2}
+    parameter: {"T_max": 40, "eta_min": 0.0001} # Scheduler parameters
   test_rate: 10 # Frequency of testing (e.g., every 5 epochs)
   pin_memory: False # Whether to use pinned memory for data loading
 

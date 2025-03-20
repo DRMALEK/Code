@@ -302,7 +302,8 @@ class QuantizationAwareTrainingWrapper():
         self.logger.info("Validation loss for epoch " + str(self.current_epoch + 1) + " is " + str(val_loss))
 
         if self.scheduler is not None:
-            self.writer.add_scalar("Learning rate", self.optimizer.param_groups[0]['lr'], self.current_epoch + 1)
+            #self.writer.add_scalar("Learning rate", self.optimizer.param_groups[0]['lr'], self.current_epoch + 1)
+            self.writer.add_scalar("Learning rate", self.scheduler.get_last_lr()[0], self.current_epoch + 1)
             self.scheduler.step(val_loss)
         else:
             for param_group in self.optimizer.param_groups:
