@@ -51,3 +51,6 @@ train:
   
   test_rate: 5 # Frequency of testing (e.g., every 5 epochs)
   pin_memory: true # Whether to use pinned memory for data loading
+
+config:
+  path: "" # Path to the configuration file
