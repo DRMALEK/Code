@@ -635,11 +635,13 @@ def get_model(cfg):
 
 if __name__== '__main__':
     pass
-    #import config
-
-    #config = config.get_cfg()  # get the default config
-    #config.merge_from_file("/home/malek/Master Thesis/I3D_8x8_R50.yaml")
-    #model = get_model(cfg=config)
+    
+    
+    import config
+    
+    config = config.get_cfg()  # get the default config
+    config.merge_from_file("/home/malek/Master Thesis/I3D_8x8_R50.yaml")
+    model = get_model(cfg=config)
     
     #checkpoint = torch.load("/home/malek/Master Thesis/I3D_8x8_R50_MECCANO.pyth", map_location='cpu')
     #model.load_state_dict(checkpoint['model_state'])
