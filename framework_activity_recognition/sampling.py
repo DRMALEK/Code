@@ -31,7 +31,6 @@ def temporal_sampling(frames, start_idx, end_idx, num_samples):
     return out_frames
 
 def spatial_sampling(
-        self,
         frames,
         spatial_idx=-1,
         min_scale=256,
