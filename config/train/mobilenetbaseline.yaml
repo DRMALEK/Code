@@ -10,10 +10,10 @@ data: # Data configuration
   sampler:
     use: true # Whether to use a Imbalanced data sampler 
 
-  num_frames: 16     # Similar to the authors of the mecanno dataset  
+  num_frames: 16     # Number of frames to sample from each video same as 3D mobilenet requirment
   sampling_rate: 2    # Similar to the authors of the mecanno dataset
-  train_jitter_scales: [256, 320]
-  train_crop_size: 224
+  #train_jitter_scales: [256, 320]
+  train_crop_size: 256
   test_crop_size: 256
   input_channel_num: [3]
 
