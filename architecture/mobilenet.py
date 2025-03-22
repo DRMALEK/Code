@@ -157,8 +157,6 @@ def get_model(**kwargs):
     model = MobileNet(**kwargs)
     return model
 
-
-
 if __name__ == '__main__':
     config_file = yaml.load(open("config/train/mobilenetbaseline.yaml"))
     architecture_config = yaml.load(open("config/architecture/mobilenet.yaml"))

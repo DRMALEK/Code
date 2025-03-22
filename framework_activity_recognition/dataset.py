@@ -1,40 +1,14 @@
 import os
 import torch
-import random as rn
 import numpy as np
 import logging
-from torch.utils.data import Dataset
 from PIL import Image
-import math
-from framework_activity_recognition import transform
+
+from framework_activity_recognition.sampling import temporal_sampling, spatial_sampling
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def temporal_sampling(frames, start_idx, end_idx, num_samples):
-    """
-    Given the start and end frame index, sample num_samples frames between
-    the start and end with equal interval. If the number of frames is < num_samples, duplicate frames.
-    Args:
-        frames (tensor): a tensor of video frames, dimension is
-            `num video frames` x `channel` x `height` x `width`.
-        start_idx (int): the index of the start frame.
-        end_idx (int): the index of the end frame.
-        num_samples (int): number of frames to sample.
-    Returns:
-        frames (tersor): a tensor of temporal sampled video frames, dimension is
-            `num clip frames` x `channel` x `height` x `width`.
-    """
-
-
-    length = (end_idx - start_idx)+1
-    index = torch.linspace(start_idx, end_idx, num_samples)
-    index = torch.clamp(index, 0, end_idx).long()
-    index = index-start_idx
-
-    out_frames = torch.index_select(frames, 0, index)
-
-    return out_frames
 
 classes_name = [
     'check_booklet', 'take_gray_perforated_bar', 'take_gray_angled_perforated_bar', 'align_objects', 'take_screw',
@@ -74,8 +48,6 @@ class MeccanoDataset(torch.utils.data.Dataset):
         _construct_loader(): Constructs the data loader by reading video paths and labels from a CSV file.
         __getitem__(index): Returns a tuple containing the frames, label, index, and an empty dictionary for a given index.
         __len__(): Returns the number of videos in the dataset.
-        spatial_sampling(frames, spatial_idx, min_scale, max_scale, crop_size, random_horizontal_flip):
-            Performs spatial sampling on the given frames.
     """
     def __init__(self, cfg, mode, num_retries=10):
         assert mode in ["train", "val", "test"], "Split '{}' not supported for MECCANO".format(mode)
@@ -140,7 +112,7 @@ class MeccanoDataset(torch.utils.data.Dataset):
         else:
             raise NotImplementedError("Does not support {} mode".format(self.mode))
 
-        # 
+        # Recover the frames from the video
         frames = []
         frame_count = int(self._frame_start[index][:-4])
         while frame_count <= int(self._frame_end[index][:-4]):
@@ -153,19 +125,22 @@ class MeccanoDataset(torch.utils.data.Dataset):
         frames = temporal_sampling(frames, int(self._frame_start[index][:-4]), int(self._frame_end[index][:-4]), self.cfg["data"]["num_frames"])
 
         # Normalize the frames to [-1, 1]
-        frames = (frames / 255.0) * 2 - 1
+        #frames = (frames / 255.0) * 2 - 1
         
-        
-        #frames = frames - torch.tensor(self.cfg["DATA"]["MEAN"])
-        #frames = frames / torch.tensor(self.cfg["DATA"]["STD"])
+        frames = frames / 255.0
+        frames = frames - torch.tensor([0.45, 0.45, 0.45])
+        frames = frames / torch.tensor([0.225, 0.225, 0.225])
 
+        
+        #Mean and std values for the dataset (using only validaiton set)
         #Mean: [0.4291935919783522, 0.4138912852383532, 0.3932020827306195]
         #Std: [0.2106381314194434, 0.21905233733269974, 0.23907043718073798]
         
         # Transpose the frames to the correct format which is (channel or pixel value, frame number, height, width)
         frames = frames.permute(3, 0, 1, 2)
 
-        frames = self.spatial_sampling(
+        
+        frames = spatial_sampling(
             frames,
             spatial_idx=spatial_sample_index,
             min_scale=min_scale,
@@ -180,59 +155,6 @@ class MeccanoDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self._path_to_videos)
-
-    def spatial_sampling(
-        self,
-        frames,
-        spatial_idx=-1,
-        min_scale=256,
-        max_scale=320,
-        crop_size=224,
-        random_horizontal_flip=True,
-    ):
-        """
-        Perform spatial sampling on the given video frames. If spatial_idx is
-        -1, perform random scale, random crop, and random flip on the given
-        frames. If spatial_idx is 0, 1, or 2, perform spatial uniform sampling
-        with the given spatial_idx.
-        Args:
-            frames (tensor): frames of images sampled from the video. The
-                dimension is `num frames` x `height` x `width` x `channel`.
-            spatial_idx (int): if -1, perform random spatial sampling. If 0, 1,
-                or 2, perform left, center, right crop if width is larger than
-                height, and perform top, center, buttom crop if height is larger
-                than width.
-            min_scale (int): the minimal size of scaling.
-            max_scale (int): the maximal size of scaling.
-            crop_size (int): the size of height and width used to crop the
-                frames.
-        Returns:
-            frames (tensor): spatially sampled frames.
-        """
-        assert spatial_idx in [-1, 0, 1, 2]
-        if spatial_idx == -1:
-            
-            # Randomly scale the frames with short side uniformly sampled from [min_scale, max_scale]
-            frames, _ = transform.random_short_side_scale_jitter(
-                images=frames,
-                min_size=min_scale,
-                max_size=max_scale,
-            )
-            
-            # Randomly crop the frames
-            frames, _ = transform.random_crop(frames, crop_size)
-            if random_horizontal_flip:
-                frames, _ = transform.horizontal_flip(0.5, frames)
-        else:
-            assert len({min_scale, max_scale, crop_size}) == 1
-            
-            frames, _ = transform.random_short_side_scale_jitter(
-                frames, min_scale, max_scale
-            )
-
-            # Perform center crop
-            frames, _ = transform.uniform_crop(frames, crop_size, spatial_idx)
-        return frames
 
     def get_labels(self):
         return self._labels
