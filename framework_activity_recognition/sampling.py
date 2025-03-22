@@ -60,12 +60,12 @@ def spatial_sampling(
         assert spatial_idx in [-1, 0, 1, 2]
         if spatial_idx == -1:
             
-            # Randomly scale the frames with short side uniformly sampled from [min_scale, max_scale]
-            frames, _ = transform.random_short_side_scale_jitter(
-                images=frames,
-                min_size=min_scale,
-                max_size=max_scale,
-            )
+        # Randomly scale the frames with short side uniformly sampled from [min_scale, max_scale]
+        #    frames, _ = transform.random_short_side_scale_jitter(
+        #        images=frames,
+        #        min_size=min_scale,
+        #        max_size=max_scale,
+        #    )
             
             # Randomly crop the frames
             frames, _ = transform.random_crop(frames, crop_size)

@@ -127,7 +127,10 @@ class MeccanoDataset(torch.utils.data.Dataset):
         # Normalize the frames to [-1, 1]
         #frames = (frames / 255.0) * 2 - 1
         
+        # Normalize the frames to [0, 1]
         frames = frames / 255.0
+
+        # Use kinetics 400 mean and std values for normalization
         frames = frames - torch.tensor([0.45, 0.45, 0.45])
         frames = frames / torch.tensor([0.225, 0.225, 0.225])
 
@@ -139,7 +142,7 @@ class MeccanoDataset(torch.utils.data.Dataset):
         # Transpose the frames to the correct format which is (channel or pixel value, frame number, height, width)
         frames = frames.permute(3, 0, 1, 2)
 
-        
+
         frames = spatial_sampling(
             frames,
             spatial_idx=spatial_sample_index,
