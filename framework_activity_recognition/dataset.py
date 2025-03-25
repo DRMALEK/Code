@@ -10,19 +10,71 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+
 classes_name = [
-    'check_booklet', 'take_gray_perforated_bar', 'take_gray_angled_perforated_bar', 'align_objects', 'take_screw',
-    'plug_screw', 'take_bolt', 'tighten_bolt_with_hands', 'unscrew_screw_with_hands', 'pull_screw',
-    'put_gray_angled_perforated_bar', 'take_white_angled_perforated_bar', 'take_handlebar', 'plug_handlebar', 'pull_partial_model',
-    'put_partial_model', 'put_white_angled_perforated_bar', 'take_red_angled_perforated_bar', 'take_red_perforated_bar',
-    'put_red_perforated_bar', 'put_screw', 'take_partial_model', 'take_red_4_perforated_junction_bar', 'take_objects', 'take_screwdriver',
-    'screw_screw_with_screwdriver', 'align_screwdriver_to_screw', 'put_screwdriver', 'take_washer', 'take_wheels_axle', 'take_tire', 'take_rim',
-    'fit_rim_tire', 'take_rod', 'put_rod', 'put_washer', 'plug_rod', 'take_roller', 'browse_booklet', 'put_gray_perforated_bar',
-    'put_red_4_perforated_junction_bar', 'take_booklet', 'put_booklet', 'put_bolt', 'put_wheels_axle', 'take_red_perforated_junction_bar',
-    'put_tire', 'put_rim', 'pull_rod', 'put_roller', 'put_red_perforated_junction_bar', 'put_objects', 'take_wrench',
-    'put_wrench', 'align_wrench_to_bolt', 'tighten_bolt_with_wrench', 'unscrew_screw_with_screwdriver', 'put_red_angled_perforated_bar',
-    'loosen_bolt_with_hands', 'put_handlebar', 'screw_screw_with_hands'
-]
+    "check_booklet",
+    "browse_booklet",
+    "take_objects",
+    "take_booklet",
+    "take_gray_angled_perforated_bar",
+    "take_partial_model",
+    "take_white_angled_perforated_bar",
+    "take_wrench",
+    "take_screwdriver",
+    "take_gray_perforated_bar",
+    "take_wheels_axle",
+    "take_red_angled_perforated_bar",
+    "take_red_perforated_bar",
+    "take_rod",
+    "take_handlebar",
+    "take_screw",
+    "take_tire",
+    "take_rim",
+    "take_washer",
+    "take_red_perforated_junction_bar",
+    "take_red_4_perforated_junction_bar",
+    "take_bolt",
+    "take_roller",
+    "loosen_bolt_with_hands",
+    "put_booklet",
+    "put_gray_angled_perforated_bar",
+    "put_partial_model",
+    "put_white_angled_perforated_bar",
+    "put_wrench",
+    "put_screwdriver",
+    "put_gray_perforated_bar",
+    "put_wheels_axle",
+    "put_red_angled_perforated_bar",
+    "put_red_perforated_bar",
+    "put_rod",
+    "put_handlebar",
+    "put_screw",
+    "put_tire",
+    "put_rim",
+    "put_washer",
+    "put_red_perforated_junction_bar",
+    "put_red_4_perforated_junction_bar",
+    "put_bolt",
+    "put_roller",
+    "put_objects",
+    "tighten_bolt_with_hands",
+    "tighten_bolt_with_wrench",
+    "align_objects",
+    "align_screwdriver_to_screw",
+    "align_wrench_to_bolt",
+    "fit_rim_tire",
+    "plug_screw",
+    "plug_rod",
+    "plug_handlebar",
+    "pull_screw",
+    "pull_rod",
+    "pull_partial_model",
+    "screw_screw_with_hands",
+    "screw_screw_with_screwdriver",
+    "unscrew_screw_with_hands",
+    "unscrew_screw_with_screwdriver"] 
+
+
 
 class MeccanoDataset(torch.utils.data.Dataset):
     """
@@ -73,6 +125,7 @@ class MeccanoDataset(torch.utils.data.Dataset):
         self._spatial_temporal_idx = []
         self._frame_start = []
         self._frame_end = []
+        
         with open(path_to_csv_file, "r") as f:
             for clip_idx, path_label in enumerate(f.read().splitlines()):
                 if clip_idx == 0:
@@ -95,6 +148,7 @@ class MeccanoDataset(torch.utils.data.Dataset):
                 len(self._path_to_videos), path_to_csv_file
             )
         )
+
 
     def __getitem__(self, index):
         if self.mode in ["train", "val"]:
@@ -131,8 +185,8 @@ class MeccanoDataset(torch.utils.data.Dataset):
         frames = frames / 255.0
 
         # Use kinetics 400 mean and std values for normalization
-        frames = frames - torch.tensor([0.45, 0.45, 0.45])
-        frames = frames / torch.tensor([0.225, 0.225, 0.225])
+        #frames = frames - torch.tensor([0.45, 0.45, 0.45])
+        #frames = frames / torch.tensor([0.225, 0.225, 0.225])
 
         
         #Mean and std values for the dataset (using only validaiton set)
@@ -153,7 +207,6 @@ class MeccanoDataset(torch.utils.data.Dataset):
         
         label = self._labels[index]
         
-        #return frames, label, index, {}
         return frames, label
 
     def __len__(self):

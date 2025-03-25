@@ -67,7 +67,7 @@ def train(config_file):
     if pretraining_config["use"]:
 
         #load the pretrained model on student network
-        student_network = load_state_dictionary(student_network, config_file, student_config)
+        #student_network = load_state_dictionary(student_network, config_file, student_config)
 
         #deactivate autograd of all layers on student network
         if pretraining_config["fine_tune_only_last_layer"]:
@@ -80,7 +80,7 @@ def train(config_file):
     num_classes = train_set.nClasses
 
     #replace out size of last layer with the number of class in training set
-    student_network = replace_last_layer(student_network, config_file, student_config)
+    #student_network = replace_last_layer(student_network, config_file, student_config)
 
     logger.info("Loaded student architecture:" + student_config["location"].split('.')[-1])
 
@@ -242,11 +242,8 @@ def load_state_dictionary(architecture, config_file, architecture_config):
         architecture that is loaded with its pretrained model
     """
     checkpoint = torch.load(config_file["pretraining"]["path"], map_location=torch.device('cpu'))
-    #print(len(checkpoint['state_dict']))
     loaded_architecture = architecture
-    #print(sum(p.numel() for p in loaded_architecture.parameters()))
-    
-        
+            
     if architecture_config["location"].split(".")[-1] == "I3D" or architecture_config["location"].split(".")[-1] == "I3DLogit":
         loaded_architecture.load_state_dict(checkpoint)
 
@@ -255,6 +252,7 @@ def load_state_dictionary(architecture, config_file, architecture_config):
         for k, v in checkpoint['state_dict'].items():
             dictWithoutModule[k[7:]] = v
         loaded_architecture.load_state_dict(dictWithoutModule)
+        print('pre-trained model is loaded')
         #architecture.load_state_dict(checkpoint['state_dict'])
     #else:
     #    loaded_architecture.load_state_dict(checkpoint)
@@ -262,19 +260,6 @@ def load_state_dictionary(architecture, config_file, architecture_config):
     return loaded_architecture
 
 def replace_last_layer(architecture, config_file, architecture_config):
-    """
-    Loads pretrained model based on architecture name
-
-    architecture: nn.Module
-        architecture whose last layer is to be replaced
-    config_file: File
-        configuration file to the respective training
-    
-    Returns
-    -------
-    nn.Module: replaced_architecture
-        architecture whose last layer replaced with the new one
-    """
     replaced_architecture = architecture
     
     if architecture_config["location"].split(".")[-1] in ["I3D", "I3DLogit"]:
@@ -286,7 +271,5 @@ def replace_last_layer(architecture, config_file, architecture_config):
         in_features = architecture.classifier[-1].in_features
         out_features = config_file["train"]["num_classes"]
         replaced_architecture.classifier[-1] = torch.nn.Linear(in_features, out_features)
-
-
 
     return replaced_architecture

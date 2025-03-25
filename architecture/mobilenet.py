@@ -34,13 +34,17 @@ class Block(nn.Module):
         return out
 
 
-class MobileNetLogit(nn.Module):
+class MobileNetLogit2(nn.Module):
     def __init__(self, config_file, architecture_config):
         super(MobileNetLogit, self).__init__()
 
         num_classes = config_file["train"]["num_classes"]
         width_mult = architecture_config["width_mult"]
         dropout = architecture_config["dropout_prob"]
+
+        print("Width multiplier: ", width_mult)
+        print("Dropout probability: ", dropout)
+        print("Number of classes: ", num_classes)
 
         input_channel = 32
         last_channel = 1024
@@ -127,6 +131,22 @@ class MobileNet(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
         return self.softmax(x)
+
+
+class MobileNetLogit(nn.Module):
+    def __init__(self, config_file, architecture_config):
+        super(MobileNetLogit, self).__init__()
+        self.conv = nn.Conv3d(3, 16, kernel_size=3, stride=1, padding=1)
+        self.pool = nn.AdaptiveAvgPool3d((1, 1, 1))
+        self.fc = nn.Linear(16, 61)
+
+    def forward(self, x):
+        x = F.relu(self.conv(x))
+        x = self.pool(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        return x
+
 
 def get_fine_tuning_parameters(model, ft_portion):
     if ft_portion == "complete":

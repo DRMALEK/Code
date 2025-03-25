@@ -10,7 +10,7 @@ data: # Data configuration
   sampler:
     use: true # Whether to use a Imbalanced data sampler 
 
-  num_frames: 16     # Number of frames to sample from each video same as 3D mobilenet requirment
+  num_frames: 32     # Number of frames to sample from each video same as 3D mobilenet requirment
   sampling_rate: 2    # Similar to the authors of the mecanno dataset
   train_jitter_scales: [256, 320]
   train_crop_size: 256
@@ -35,7 +35,7 @@ train: # Training configuration
   criterion: 
     name : "CrossEntropyLoss" # Loss function
   optimizer:
-    name: "AdamW" # Optimizer type
+    name: "Adam" # Optimizer type
     parameter: {"lr": 0.1, "weight_decay": 0.0001}
   batch_size: 32 # Batch size for training
   num_workers: 8 # Number of worker threads for data loading
@@ -44,7 +44,7 @@ train: # Training configuration
     name: "CosineAnnealingLR" # Scheduler type
     #parameter: {"milestones": [50,100,200,300,400,500,600,700], "gamma": 0.2} # Scheduler parameters
     parameter: {"T_max": 40, "eta_min": 0.0001} # Scheduler parameters
-  test_rate: 10 # Frequency of testing (e.g., every 5 epochs)
+  test_rate: 5 # Frequency of testing (e.g., every 5 epochs)
   pin_memory: False # Whether to use pinned memory for data loading
 
 config:

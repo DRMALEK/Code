@@ -7,6 +7,9 @@ import numpy as np
 import torch
 import os
 
+
+from framework_activity_recognition.dataset import classes_name
+
 class QuantizationAwareTrainingWrapper():
     """
     Wrapper for all the trainig modalities. Activation of some modalities are based on parameter passed in the constructor
@@ -115,6 +118,20 @@ class QuantizationAwareTrainingWrapper():
                 
                 inputs, target = data
 
+            #    visualize_video(inputs[0], save_path='first_batch.jpg')
+            #    visualize_video(inputs[1], save_path='second_batch.jpg')
+            #    visualize_video(inputs[2], save_path='third_batch.jpg')
+            #    visualize_video(inputs[3], save_path='fourth_batch.jpg')
+            #    visualize_video(inputs[4], save_path='fifth_batch.jpg')
+
+            #    print(target[0].item())
+            #    print(target[1].item())
+            #    print(target[2].item())
+            #   print(target[3].item())
+            #    print(target[4].item())
+
+            
+
                 # Convert inputs and target to tensors if they are lists of lists
                 if isinstance(inputs, list) and all(isinstance(i, list) for i in inputs):
                     inputs = [torch.tensor(i) for i in inputs]
@@ -130,6 +147,8 @@ class QuantizationAwareTrainingWrapper():
                 else:
                     inputs, target = Variable(inputs), Variable(target)
 
+#                print(target)
+
                 if torch.cuda.is_available():
                     student_outputs = self.student_network(inputs).cuda()
                 else:
@@ -137,7 +156,10 @@ class QuantizationAwareTrainingWrapper():
 
                 softmaxFunction = nn.Softmax(dim=1)
 
-                current_loss = self.criterion(softmaxFunction(student_outputs), target)
+           #     print(softmaxFunction(student_outputs).size())
+           #     print(softmaxFunction(student_outputs))
+
+                current_loss = self.criterion(student_outputs, target)
 
                 if self.teacher_network is not None:
                     current_loss = (1 - self.teacher_weight) * current_loss
@@ -611,3 +633,41 @@ class BenchmarkWrapper():
                 torch.cuda.synchronize()
 
                 self.logger.info("GPU inference time (ms): " + str(start_event.elapsed_time(end_event)))
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+def visualize_video(video, num_frames_to_show=8, save_path=None):
+    """
+    Visualize a single video.
+    video shape: [3, 16, 256, 256] (channels, frames, height, width)
+    """
+    print(f"Video shape: {video.shape}")
+    print(f"Data type: {video.dtype}")
+    print(f"Value range: [{video.min().item():.2f}, {video.max().item():.2f}]")
+
+    # Select frames to visualize (evenly spaced)
+    frame_count = video.shape[1]  # Temporal dimension
+    indices = np.linspace(0, frame_count - 1, num_frames_to_show, dtype=int)
+
+    # Create a figure
+    fig, axes = plt.subplots(1, num_frames_to_show, figsize=(20, 5))
+    fig.suptitle('Video Frames Visualization', fontsize=16)
+
+    for idx, ax in zip(indices, axes):
+        # Extract the frame (shape: [3, 256, 256])
+        frame = video[:, idx, :, :].permute(1, 2, 0).cpu().numpy()  # Convert to [H, W, C]
+
+        # Normalize frame for visualization (if needed)
+        if frame.max() > 1.0 or frame.min() < 0.0:
+            frame = (frame - frame.min()) / (frame.max() - frame.min())
+
+        # Plot the frame
+        ax.imshow(frame)
+        ax.axis('off')
+        ax.set_title(f'Frame {idx}')
+
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path)
+    plt.show()

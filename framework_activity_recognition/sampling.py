@@ -22,6 +22,7 @@ def temporal_sampling(frames, start_idx, end_idx, num_samples):
 
 
     length = (end_idx - start_idx)+1
+
     index = torch.linspace(start_idx, end_idx, num_samples)
     index = torch.clamp(index, 0, end_idx).long()
     index = index-start_idx
@@ -60,12 +61,12 @@ def spatial_sampling(
         assert spatial_idx in [-1, 0, 1, 2]
         if spatial_idx == -1:
             
-        # Randomly scale the frames with short side uniformly sampled from [min_scale, max_scale]
-        #    frames, _ = transform.random_short_side_scale_jitter(
-        #        images=frames,
-        #        min_size=min_scale,
-        #        max_size=max_scale,
-        #    )
+        #Randomly scale the frames with short side uniformly sampled from [min_scale, max_scale]
+            frames, _ = transform.random_short_side_scale_jitter(
+                images=frames,
+                min_size=min_scale,
+                max_size=max_scale,
+            )
             
             # Randomly crop the frames
             frames, _ = transform.random_crop(frames, crop_size)
